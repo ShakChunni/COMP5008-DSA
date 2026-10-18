@@ -46,7 +46,8 @@ assignment scenarios and regressions are retained in the submitted drivers.
 - Add required author/date/purpose headers (omitted at the user's earlier request).
 - Confirm source-data collection/verification acceptance: the 40 exact rows were
   selected from the supplied sample, not independently collected from the website.
-- Check the omitted graph rubric/Sections 10–12 and extra unit restrictions,
+- Check the omitted Sections 10–11 and extra unit restrictions (the graph rubric
+  is now confirmed by the screenshot),
   including whether indexed Python lists may serve as arrays.
 - The brief's ZIP example names `interactive_menu.py`; this version intentionally
   uses `main.py`, as requested, and documents its interactive entry-point role.

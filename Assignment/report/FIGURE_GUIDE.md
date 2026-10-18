@@ -69,6 +69,11 @@ implementations. It is not inferred from timings or generated model requests.
 
 **Label:** `fig:system-uml`. Recommended width: `\linewidth` in a single-column report.
 
+Updated 17 October 2026: the method label is now `calculateRequest(...)`; the
+method returns a `CollectionRequest`, whose priority field is calculated as F/T.
+Re-upload `01_system_uml.pdf` if your Overleaf copy still shows the old formula
+after the method-name colon.
+
 ### 02 — Module data flow
 
 **Suggested caption:**

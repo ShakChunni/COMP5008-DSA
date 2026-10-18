@@ -118,7 +118,8 @@ new farm records without graph locations or connections are skipped.
 - Read the final checklist in `report/REPORT_GUIDE.md`.
 - Confirm the supplied sample is acceptable as the farm-data source: the brief says
   to collect data from the website and describes this CSV as an example.
-- Check the full brief for removed sections/graph rubric and any extra unit restrictions.
+- Check missing Sections 10–11 and any extra unit restrictions. The full rubric,
+  including Graph 8 marks, is now confirmed by the supplied screenshot.
 - The brief shows `interactive_menu.py`; this version uses `main.py` at your request.
 - Confirm indexed Python lists are allowed as arrays under those unit restrictions.
 - Add author/date/purpose headers later; they are currently omitted at your request.

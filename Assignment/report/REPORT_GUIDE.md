@@ -16,10 +16,10 @@ vehicle routing optimizer or GIS implementation.
 
 Visible assessment total: 40 marks. The visible hash, heap and sorting criteria are
 6 marks each, report 8 and code quality/compliance 6. These visible areas sum to 32.
-The remaining 8 are consistent with the graph module but its actual rubric rows
-are missing from this PDF. The PDF ends page 8 mid-list and begins page 9 partway
-through the rubric; Sections 10–12 are absent. Check the complete brief before
-final submission. Do not describe an inferred graph breakdown as confirmed.
+The complete rubric screenshot supplied on 16 October confirms Graph has 8 marks:
+construction/adjacency-list design 2, BFS 2, DFS 2 and Dijkstra 2. The PDF copy itself
+ends page 8 mid-list and begins page 9 partway through the rubric; Sections 10–11
+remain unavailable. Check any additional instructions there before submission.
 
 The stated deadline is 30 October 2026, 23:59 AWST; CAP students receive 7 extra
 days. Both Blackboard links are required: report PDF to Turnitin; ZIP to the
@@ -530,7 +530,8 @@ Tie the choice to this data, not just a winner in one timing row.
 ## 9. Time and space complexity (match the actual code)
 
 Notation: V vertices, E undirected edges, n sorting records, R pending requests,
-H accepted historical requests, m hash capacity, C heap capacity, L ID length.
+H accepted historical requests, q live farm records, m old hash capacity,
+m' new hash capacity, C heap capacity, L ID length.
 Auxiliary space excludes stored input structures unless stated.
 
 | Operation | Time | Space/qualification |
@@ -544,7 +545,7 @@ Auxiliary space excludes stored input structures unless stated.
 | Hash calculation | O(L) | O(1) arithmetic workspace; L small for supplied IDs |
 | Hash search/delete | Expected O(1) for fixed L; worst O(m) | Assumes suitable distribution and moderate probe occupancy |
 | Hash insert without resize | Expected O(1); worst O(m) | Duplicate check + probing; formatting/probe trace adds overhead |
-| Hash resizing | Expected O(m+n) rehash work | Old/new arrays O(m+n); prime-search work additional; pathological collisions worsen time |
+| Hash resizing | Expected O(m+m'+q) rehash work for fixed L | O(m+m') table slots; old/new arrays coexist; prime-search work additional; pathological probing can cost O(q²) |
 | Hash insert amortized | Expected O(1) for fixed L | Geometric capacity growth; one resize insert costs more |
 | Hash storage | — | O(m) slot objects plus farm records |
 | Heap insert/extract algorithm | O(log R) | O(1) percolation workspace; O(C) backing array overall |
@@ -742,7 +743,7 @@ Before a demonstration, be able to answer:
 
 ## 15. Final submission checklist (work still required later)
 
-- [ ] Obtain/check full brief: missing graph rubric, Sections 10–12 and any additional restrictions.
+- [ ] Obtain/check missing Sections 10–11 and any additional restrictions. Graph rubric is now confirmed from the screenshot.
 - [ ] Confirm supplied-sample dataset satisfies collection requirement; verify retained sources if needed.
 - [ ] Confirm Python lists used as indexed arrays are permitted by your unit rules.
 - [ ] Note the entry point is now `main.py`, as requested, rather than the brief's

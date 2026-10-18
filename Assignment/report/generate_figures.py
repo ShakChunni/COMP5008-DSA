@@ -94,7 +94,7 @@ def systemUML():
               "- _findIndex(), _resize()"), GREEN)
     classBox(ax, 4.65, 3.8, 4.7, 2.85, "CollectionScheduler",
              ("farms, graph, hub", "heap; accepted history: linked list"),
-             ("+ calculateRequest(): P = F / T", "+ insert(), peek(), extract_priority()",
+             ("+ calculateRequest(...)", "+ insert(), peek(), extract_priority()",
               "- _discardDeletedTop()"), PURPLE)
     classBox(ax, 0.3, 0.7, 4.3, 2.65, "DSAHeap (Module 3)",
              ("array of DSAHeapEntry", "priority, request, FIFO sequence"),
