@@ -100,6 +100,10 @@ def merge(A, left_index, middle_index, right_index):
         A[left_index + temporary_position] = temporary[temporary_position]
         temporary_position += 1
 
+
+
+        
+
 def quickSort(A):
     """ quickSort - front-end for kick-starting the recursive algorithm
     """

@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=18mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+\pagestyle{plain}
+
+\begin{document}
+
+{\Large\bfseries Practical 9: Advanced Sorting}\par
+Student ID: 23472297
+
+\textbf{Runtime results}
+
+The table contains measured runtimes from \texttt{python3 benchmark.py}.
+Each case runs three times: the first is discarded and the remaining two
+are averaged. Only sorting is timed; array generation, printing and
+validation are excluded. Fixed seeds give each algorithm the same input
+arrays for each repeat. All times are in milliseconds and may vary between runs.
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}rlrrrrrrr@{}}
+\toprule
+Size & Input & Bubble & Insertion & Selection & Merge & Q-left & Q-med & Q-rand \\
+\midrule
+250 & Asc. & 0.019 & 0.019 & 2.195 & 0.371 & 1.242 & 0.164 & 0.226 \\
+250 & Desc. & 5.451 & 5.013 & 2.284 & 0.350 & 2.493 & 0.272 & 0.236 \\
+250 & Random & 3.658 & 2.540 & 2.933 & 0.402 & 0.226 & 0.215 & 0.222 \\
+\midrule
+500 & Asc. & 0.048 & 0.045 & 9.334 & 0.787 & 4.881 & 0.405 & 0.538 \\
+500 & Desc. & 22.200 & 20.401 & 8.792 & 0.802 & 10.887 & 0.700 & 0.593 \\
+500 & Random & 16.373 & 10.110 & 8.669 & 0.925 & 0.505 & 0.501 & 0.658 \\
+\midrule
+1000 & Asc. & 0.101 & 0.078 & 40.741 & 1.777 & 20.183 & 1.376 & 1.245 \\
+1000 & Desc. & 110.538 & 89.967 & 36.998 & 1.918 & 44.832 & 1.693 & 1.259 \\
+1000 & Random & 67.844 & 43.046 & 37.931 & 2.178 & 1.308 & 1.257 & 1.324 \\
+\midrule
+2000 & Asc. & 0.165 & 0.153 & 155.343 & 4.027 & 77.748 & 2.081 & 2.801 \\
+2000 & Desc. & 392.353 & 343.776 & 143.513 & 3.976 & 185.991 & 3.945 & 2.989 \\
+2000 & Random & 276.884 & 183.436 & 139.538 & 4.596 & 2.621 & 2.521 & 2.786 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Q-left, Q-med and Q-rand mean QuickSort with leftmost, median-of-three
+and random pivots, respectively. Asc. means ascending; Desc. means descending.
+
+\textbf{Discussion}
+
+Bubble and Insertion Sort were fastest on ascending input, matching their
+$O(n)$ best case. On random and descending input, their runtimes increased
+much faster, consistent with $O(n^2)$ behaviour. Selection Sort has
+$O(n^2)$ time in all cases and did not benefit much from sorted input.
+Merge Sort performed consistently across input conditions, with
+$O(n\log n)$ time in every case, but requires $O(n)$ extra array space.
+It is stable because equal values are taken from the left half first.
+Leftmost-pivot QuickSort was much slower on ascending and descending input
+because repeatedly unbalanced partitions produce $O(n^2)$ time.
+Median-of-three and random pivots improved these cases substantially.
+All QuickSort versions were faster than Merge Sort on the tested random
+inputs. QuickSort has average or expected $O(n\log n)$ time, but all three
+versions can still take $O(n^2)$ in the worst case. It rearranges values
+within the original array and is not stable. Our version recurses on the
+smaller partition and loops over the larger one, limiting recursion space
+to $O(\log n)$. These timings illustrate the expected trends; they do not
+prove the complexity bounds.
+
+\end{document}
