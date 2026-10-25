@@ -10,8 +10,27 @@ import csv
 import io
 import json
 import numpy as np
-from DataLoader import ROOT, buildSystem, loadRequests
+from DataLoader import ROOT, buildSystem, loadRequests, columnIndex
 from prepare_data import HUB_LAT, HUB_LNG
+from common.DSALinkedList import DSALinkedList
+
+
+def environmentValue(filename, name):
+    """Read one scalar from the flat JSON file written by the benchmark."""
+    with filename.open(encoding="utf-8") as source:
+        for line in source:
+            text = line.strip()
+            colon = 0
+            while colon < len(text) and text[colon] != ":":
+                colon += 1
+            if colon == len(text):
+                continue
+            if json.loads(text[:colon]) == name:
+                value = text[colon + 1:].strip()
+                if value.endswith(","):
+                    value = value[:-1]
+                return json.loads(value)
+    raise KeyError("Missing benchmark environment field: " + name)
 
 
 def main():
@@ -27,35 +46,97 @@ def main():
             collected[index] = scheduler.extract_priority()
     with (figures / "graph_vertices.csv").open("w", newline="", encoding="utf-8") as target:
         writer = csv.writer(target)
-        writer.writerow(("Label", "Name", "Latitude", "Longitude", "Role"))
-        writer.writerow(("HUB", "Proposed Kwinana-area hub", HUB_LAT, HUB_LNG, "hub"))
+        row = np.empty(5, dtype=object)
+        row[0] = "Label"
+        row[1] = "Name"
+        row[2] = "Latitude"
+        row[3] = "Longitude"
+        row[4] = "Role"
+        writer.writerow(row)
+        row[0] = "HUB"
+        row[1] = "Proposed Kwinana-area hub"
+        row[2] = HUB_LAT
+        row[3] = HUB_LNG
+        row[4] = "hub"
+        writer.writerow(row)
         for record in records:
-            writer.writerow((record.farm_id, record.name, record.latitude, record.longitude,
-                             "isolated_farm" if record is records.peekLast() else "farm"))
+            row[0] = record.farm_id
+            row[1] = record.name
+            row[2] = record.latitude
+            row[3] = record.longitude
+            row[4] = "isolated_farm" if record is records.peekLast() else "farm"
+            writer.writerow(row)
     with (figures / "bfs_levels.csv").open("w", newline="", encoding="utf-8") as target:
         writer = csv.writer(target)
-        writer.writerow(("Label", "Level"))
+        row = np.empty(2, dtype=object)
+        row[0] = "Label"
+        row[1] = "Level"
+        writer.writerow(row)
         writer.writerows(graph.breadthFirstSearch("HUB"))
     with (figures / "priorities_and_collection_order.csv").open("w", newline="", encoding="utf-8") as target:
         writer = csv.writer(target)
-        writer.writerow(("CollectionOrder", "RequestID", "FarmID", "FeedstockModelTonnes",
-                         "ShortestMinutes", "Priority", "PathToHub"))
+        row = np.empty(7, dtype=object)
+        row[0] = "CollectionOrder"
+        row[1] = "RequestID"
+        row[2] = "FarmID"
+        row[3] = "FeedstockModelTonnes"
+        row[4] = "ShortestMinutes"
+        row[5] = "Priority"
+        row[6] = "PathToHub"
+        writer.writerow(row)
         for index, request in enumerate(collected):
-            writer.writerow((index + 1, request.request_id, request.farm_id, request.feedstock,
-                             request.transport_time, request.priority, str(request.path)))
+            row[0] = index + 1
+            row[1] = request.request_id
+            row[2] = request.farm_id
+            row[3] = request.feedstock
+            row[4] = request.transport_time
+            row[5] = request.priority
+            row[6] = str(request.path)
+            writer.writerow(row)
     with (figures / "heap_states.csv").open("w", newline="", encoding="utf-8") as target:
         writer = csv.writer(target)
-        writer.writerow(("OperationNumber", "Operation", "HeapArrayIndexOrder"))
+        row = np.empty(3, dtype=object)
+        row[0] = "OperationNumber"
+        row[1] = "Operation"
+        row[2] = "HeapArrayIndexOrder"
+        writer.writerow(row)
         number = 0
-        for line in captured.getvalue().splitlines():
+        captured.seek(0)
+        for captured_line in captured:
+            line = captured_line.rstrip("\r\n")
             if line.startswith("HEAP after "):
                 number += 1
-                operation, heap_array = line.split(": ", 1)
-                writer.writerow((number, operation.removeprefix("HEAP after "), heap_array))
+                colon = 0
+                while colon < len(line) and line[colon] != ":":
+                    colon += 1
+                if colon == len(line):
+                    raise ValueError("Heap trace is missing its array separator")
+                row[0] = number
+                row[1] = line[:colon].removeprefix("HEAP after ")
+                row[2] = line[colon + 2:]
+                writer.writerow(row)
 
     with (ROOT / "sample_output/benchmark_results.csv").open(newline="") as source:
-        benchmark_rows = tuple(csv.DictReader(source))
-    environment = json.loads((ROOT / "sample_output/benchmark_environment.json").read_text())
+        benchmark_rows = DSALinkedList()
+        reader = csv.reader(source)
+        header = next(reader, None)
+        records_column = columnIndex(header, "Records")
+        condition_column = columnIndex(header, "Condition")
+        mean_column = columnIndex(header, "MeanMilliseconds")
+        for parsed in reader:
+            if len(parsed) == 0:
+                continue
+            row = np.empty(len(parsed), dtype=object)
+            for index in range(len(parsed)):
+                row[index] = parsed[index]
+            benchmark_rows.insertLast(row)
+    environment_path = ROOT / "sample_output/benchmark_environment.json"
+    python_version = environmentValue(environment_path, "python")
+    numpy_version = environmentValue(environment_path, "numpy")
+    system = environmentValue(environment_path, "platform")
+    processor = environmentValue(environment_path, "processor")
+    seed = environmentValue(environment_path, "seed")
+    repetitions = environmentValue(environment_path, "repetitions")
     _, cycle = graph.depthFirstSearch("HUB")
     result = "# Measured results and figure inputs\n\n"
     result += ("Generated by `python3 generate_report_evidence.py` after `python3 run_tests.py`. "
@@ -66,7 +147,8 @@ def main():
                "including the hub. DFS visits all 41, including the isolated farm.\n\n")
     result += "## Hash table evidence\n\n"
     result += "| Successful insertions | Live records | Capacity | Load factor |\n|---:|---:|---:|---:|\n"
-    for count, capacity in ((10, 53), (20, 53), (30, 53), (40, 107)):
+    for count in range(10, 41, 10):
+        capacity = 53 if count < 40 else 107
         result += f"| {count} | {count} | {capacity} | {count / capacity:.6f} |\n"
     result += ("\nThe 38th insertion would make 38/53 > 0.7, so the table grows from 53 to 107 "
                "before inserting it. After deletion, 39/107 = 0.364486.\n\n"
@@ -81,16 +163,22 @@ def main():
                    f"{request.feedstock:.2f} | {request.transport_time:.2f} | {request.priority:.6f} |\n")
     result += "\nThe required five-extraction example is the first five rows. Equal priorities use FIFO insertion order.\n\n"
     result += "## Sorting measurements\n\n"
-    result += (f"Python {environment['python']}; NumPy {environment['numpy']}; {environment['platform']}; "
-               f"processor `{environment['processor']}`. Base seed {environment['seed']}; "
-               f"{environment['repetitions']} repetitions; one warm-up per algorithm/case. "
+    result += (f"Python {python_version}; NumPy {numpy_version}; {system}; "
+               f"processor `{processor}`. Base seed {seed}; "
+               f"{repetitions} repetitions; one warm-up per algorithm/case. "
                "Mean time in milliseconds; `time.perf_counter_ns`. Input creation, copying, "
                "CSV writes and correctness checks are outside timing.\n\n")
     result += "| Records | Condition | Merge Sort (ms) | Quick Sort (ms) |\n|---:|---|---:|---:|\n"
-    for index in range(0, len(benchmark_rows), 2):
-        merge, quick = benchmark_rows[index], benchmark_rows[index + 1]
-        result += (f"| {merge['Records']} | {merge['Condition']} | "
-                   f"{float(merge['MeanMilliseconds']):.6f} | {float(quick['MeanMilliseconds']):.6f} |\n")
+    benchmark_iterator = iter(benchmark_rows)
+    while True:
+        merge = next(benchmark_iterator, None)
+        if merge is None:
+            break
+        quick = next(benchmark_iterator, None)
+        if quick is None:
+            raise ValueError("Benchmark results are missing a matching algorithm row")
+        result += (f"| {merge[records_column]} | {merge[condition_column]} | "
+                   f"{float(merge[mean_column]):.6f} | {float(quick[mean_column]):.6f} |\n")
     result += ("\nDiscuss growth within each algorithm/condition and compare algorithms within each row. "
                "Short runs are sensitive to scheduler activity, caches, Python/runtime overhead and noise. "
                "The benchmarks contain repeated transport-time keys because many requests revisit the "

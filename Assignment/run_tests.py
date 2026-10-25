@@ -42,19 +42,24 @@ def integrationTest():
     print("INTEGRATION TEST PASSED")
 
 
-def main():
+def runSuite(filename, suite):
     output = ROOT / "sample_output"
     output.mkdir(exist_ok=True)
-    suites = (("graph_tests.txt", graphTests), ("hash_tests.txt", hashTests),
-              ("heap_tests.txt", heapTests), ("sorting_tests.txt", sortingTests),
-              ("input_tests.txt", inputTests), ("integration_tests.txt", integrationTest),
-              ("benchmark_run.txt", runBenchmarks))
-    for filename, suite in suites:
-        print("Running", filename)
-        with (output / filename).open("w", encoding="utf-8") as log:
-            with contextlib.redirect_stdout(log):
-                suite()
-        print("PASS", filename)
+    print("Running", filename)
+    with (output / filename).open("w", encoding="utf-8") as log:
+        with contextlib.redirect_stdout(log):
+            suite()
+    print("PASS", filename)
+
+
+def main():
+    runSuite("graph_tests.txt", graphTests)
+    runSuite("hash_tests.txt", hashTests)
+    runSuite("heap_tests.txt", heapTests)
+    runSuite("sorting_tests.txt", sortingTests)
+    runSuite("input_tests.txt", inputTests)
+    runSuite("integration_tests.txt", integrationTest)
+    runSuite("benchmark_run.txt", runBenchmarks)
     print("All module tests, integration tests and 18 benchmark combinations passed.")
     generateEvidence()
 

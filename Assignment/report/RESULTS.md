@@ -46,15 +46,15 @@ Python 3.14.7; NumPy 2.5.4; macOS-27.0.1-arm64-arm-64bit-Mach-O; processor `arm`
 
 | Records | Condition | Merge Sort (ms) | Quick Sort (ms) |
 |---:|---|---:|---:|
-| 100 | random | 0.091512 | 0.054476 |
-| 100 | nearly_sorted | 0.086369 | 0.042619 |
-| 100 | reversed | 0.081810 | 0.045845 |
-| 500 | random | 0.617220 | 0.354441 |
-| 500 | nearly_sorted | 0.579429 | 0.301393 |
-| 500 | reversed | 0.586059 | 0.319107 |
-| 1000 | random | 1.398286 | 0.819946 |
-| 1000 | nearly_sorted | 1.420500 | 0.773345 |
-| 1000 | reversed | 1.340691 | 0.704607 |
+| 100 | random | 0.094185 | 0.055905 |
+| 100 | nearly_sorted | 0.083839 | 0.042786 |
+| 100 | reversed | 0.080720 | 0.044887 |
+| 500 | random | 0.619756 | 0.369286 |
+| 500 | nearly_sorted | 0.605155 | 0.315708 |
+| 500 | reversed | 0.566197 | 0.320053 |
+| 1000 | random | 1.398643 | 0.819310 |
+| 1000 | nearly_sorted | 1.406673 | 0.704178 |
+| 1000 | reversed | 1.310881 | 0.705720 |
 
 Discuss growth within each algorithm/condition and compare algorithms within each row. Short runs are sensitive to scheduler activity, caches, Python/runtime overhead and noise. The benchmarks contain repeated transport-time keys because many requests revisit the same 39 reachable farms. Median-of-three helps on ordered data but is not a worst-case guarantee. Do not conclude that reversed data necessarily causes quadratic behavior for this implementation.
 

@@ -28,7 +28,7 @@
     "report/figure_data/priorities_and_collection_order.csv": "37770f1b33f1003bd53e78d050aa7338f5f5c8fb8265f09be65d8bc220cb137f",
     "report/figure_data/heap_states.csv": "aefa5596e297b6e48479fad0ce9f8105c3c59d22b3e8f1b1158796dd781277fe",
     "sample_output/hash_tests.txt": "49d9c1172baafac2f7e88933d1794163f44cfb8b239d983675deb63d88ecfcf9",
-    "sample_output/benchmark_results.csv": "fe4dc20be213c38d016c45c3500e0ea37b13b368d6785a7deaf18b570c0f109c",
+    "sample_output/benchmark_results.csv": "cd0a366f0db39c5ed795559f3a9644d758b6f9dafbf48c3c34ac1f0cef0f6290",
     "sample_output/benchmark_environment.json": "ef0c278c54b80a180d0fe3e4d64900be757792ebc626e4f5f0d96d312798dbd1"
   }
 }

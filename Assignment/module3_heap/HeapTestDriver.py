@@ -3,6 +3,7 @@
 # Date: 2026-10-25
 # Purpose: Demonstrate scheduling priorities, heap states and error handling.
 
+import numpy as np
 from DataLoader import ROOT, buildSystem, loadRequests
 from CollectionScheduler import CollectionScheduler
 from TestHelpers import check, expectError
@@ -32,7 +33,15 @@ def runTests():
     expectError("empty scheduler extraction", ValueError, scheduler.extract_priority)
     expectError("reused completed request ID", ValueError,
                 lambda: scheduler.insert("R001", records.peekFirst().farm_id, 12))
-    for value in (0, -1, "bad", None, True, float("nan"), float("inf")):
+    invalid_feedstocks = np.empty(7, dtype=object)
+    invalid_feedstocks[0] = 0
+    invalid_feedstocks[1] = -1
+    invalid_feedstocks[2] = "bad"
+    invalid_feedstocks[3] = None
+    invalid_feedstocks[4] = True
+    invalid_feedstocks[5] = float("nan")
+    invalid_feedstocks[6] = float("inf")
+    for value in invalid_feedstocks:
         expectError(f"invalid feedstock {value}", ValueError,
                     lambda value=value: scheduler.insert("INVALID", records.peekFirst().farm_id, value))
     expectError("empty request ID", ValueError, lambda: scheduler.insert("", records.peekFirst().farm_id, 10))

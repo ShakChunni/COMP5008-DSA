@@ -10,8 +10,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import numpy as np
 from pathlib import Path
-from DataLoader import ROOT, buildSystem, loadFarmRecords, loadGraph, loadRequests
+from DataLoader import ROOT, buildSystem, loadFarmRecords, loadGraph, loadRequests, columnIndex, fieldValue
 from TestHelpers import check, expectError
 
 
@@ -66,7 +67,10 @@ def runTests():
                    "1\n2\nHUB\n3\nHUB\n4\nnew01\nHUB\n5\nnew01\n"
                    "8\n9\nNEWREQUEST\nnew01\n20\n10\n12\n11\n13\n"
                    "14\n1\n14\n2\n7\nnew01\n0\n")
-        process = subprocess.run([sys.executable, str(package / "main.py")],
+        command = np.empty(2, dtype=object)
+        command[0] = sys.executable
+        command[1] = str(package / "main.py")
+        process = subprocess.run(command,
                                  input=session, text=True, cwd=directory,
                                  capture_output=True, timeout=20)
         check("all menu options work from an isolated extracted package",
@@ -77,16 +81,26 @@ def runTests():
               and "Accepted=12, rejected=7" in process.stdout)
         exported = package / "sample_output/collection_records_sorted.csv"
         with exported.open(newline="", encoding="utf-8") as source:
-            saved = tuple(csv.DictReader(source))
-        check("menu exports complete sorted accepted history", len(saved) == 13
-              and all(float(saved[index - 1]["TransportTime"]) <= float(saved[index]["TransportTime"])
-                      for index in range(1, len(saved))))
+            saved_count = 0
+            ascending = True
+            previous_time = -1.0
+            reader = csv.reader(source)
+            time_column = columnIndex(next(reader, None), "TransportTime")
+            for row in reader:
+                if len(row) == 0:
+                    continue
+                current_time = float(fieldValue(row, time_column))
+                if current_time < previous_time:
+                    ascending = False
+                previous_time = current_time
+                saved_count += 1
+        check("menu exports complete sorted accepted history", saved_count == 13 and ascending)
 
         # A CSV parser failure can happen before normal per-row validation.
         (package / "data/collection_requests.csv").write_text(
             "RequestID,FarmID,EstimatedFeedstock\n" + "X" * (csv.field_size_limit() + 1)
             + "," + records.peekFirst().farm_id + ",10\n")
-        process = subprocess.run([sys.executable, str(package / "main.py")],
+        process = subprocess.run(command,
                                  input="13\n0\n", text=True, cwd=directory,
                                  capture_output=True, timeout=20)
         check("CSV parser errors are handled and menu continues",
@@ -95,14 +109,15 @@ def runTests():
               and "Exiting..." in process.stdout)
 
     # Run from a different working directory to verify file path handling.
-    process = subprocess.run([sys.executable, str(ROOT / "main.py")],
+    command[1] = str(ROOT / "main.py")
+    process = subprocess.run(command,
                              input="invalid\n5\nzzzzz\n10\n11\n0\n", text=True,
                              cwd=tempfile.gettempdir(), capture_output=True, timeout=20)
     check("menu rejects input and continues", process.returncode == 0
           and "Invalid menu option" in process.stdout and "Farm not found" in process.stdout
           and "Heap is empty" in process.stdout and "Exiting..." in process.stdout
           and "Traceback" not in process.stderr)
-    process = subprocess.run([sys.executable, str(ROOT / "main.py")], input="", text=True,
+    process = subprocess.run(command, input="", text=True,
                              cwd=tempfile.gettempdir(), capture_output=True, timeout=20)
     check("menu EOF cleanly exits", process.returncode == 0 and "Exiting..." in process.stdout
           and "Traceback" not in process.stderr)

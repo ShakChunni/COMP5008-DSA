@@ -3,6 +3,7 @@
 # Date: 2026-10-25
 # Purpose: Demonstrate farm hashing, collisions, searches, deletion and resizing.
 
+import numpy as np
 from DataLoader import ROOT, loadFarmRecords
 from FarmRecord import FarmRecord
 from module2_hash.DSAHashTable import DSAHashTable
@@ -37,7 +38,8 @@ def runTests():
     for candidate in records:
         for other in records:
             if candidate is not other and collision_table.hash(candidate.farm_id) == collision_table.hash(other.farm_id):
-                first, second = candidate, other
+                first = candidate
+                second = other
                 break
         if first is not None:
             break
@@ -57,13 +59,30 @@ def runTests():
         return FarmRecord(farm_id, name, valid.species, lat, lng, valid.street_num,
                           valid.street, valid.suburb, valid.state, valid.postcode, valid.country)
 
-    for identifier in ("", " bad", "bad-id", None, 123, "é123"):
+    invalid_ids = np.empty(6, dtype=object)
+    invalid_ids[0] = ""
+    invalid_ids[1] = " bad"
+    invalid_ids[2] = "bad-id"
+    invalid_ids[3] = None
+    invalid_ids[4] = 123
+    invalid_ids[5] = "é123"
+    for identifier in invalid_ids:
         expectError(f"invalid FarmID {identifier}", ValueError, lambda identifier=identifier: makeRecord(farm_id=identifier))
         expectError("invalid search ID", ValueError, lambda identifier=identifier: table.search(identifier))
     expectError("blank farm name", ValueError, lambda: makeRecord(name=" "))
-    for value in ("bad", None, True, float("nan"), float("inf"), 91, -91):
+    invalid_coordinates = np.empty(7, dtype=object)
+    invalid_coordinates[0] = "bad"
+    invalid_coordinates[1] = None
+    invalid_coordinates[2] = True
+    invalid_coordinates[3] = float("nan")
+    invalid_coordinates[4] = float("inf")
+    invalid_coordinates[5] = 91
+    invalid_coordinates[6] = -91
+    for value in invalid_coordinates:
         expectError(f"invalid latitude {value}", ValueError, lambda value=value: makeRecord(lat=value))
-    for value in ("bad", None, True, float("nan"), float("inf"), 181, -181):
+    invalid_coordinates[5] = 181
+    invalid_coordinates[6] = -181
+    for value in invalid_coordinates:
         expectError(f"invalid longitude {value}", ValueError, lambda value=value: makeRecord(lng=value))
     check("coordinate boundary values accepted", makeRecord(lat=90, lng=-180).latitude == 90)
     expectError("oversized coordinate integer", ValueError, lambda: makeRecord(lat=10 ** 1000))

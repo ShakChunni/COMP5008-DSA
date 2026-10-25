@@ -2,15 +2,15 @@ After 10 successful insertions: load factor=0.1887 (10/53)
 After 20 successful insertions: load factor=0.3774 (20/53)
 After 30 successful insertions: load factor=0.5660 (30/53)
 After 40 successful insertions: load factor=0.3738 (40/107)
-PASS missing farm headers: Farm CSV is missing required column headers
-PASS empty farm CSV: Farm CSV is missing required column headers
-PASS missing farm file: [Errno 2] No such file or directory: '/Users/ashfaq/Studies/COMP5008/Labs/.assignment_work/tmp/comp5008_input_0qqrxu2k/missing.csv'
-PASS truncated farm row: Farm CSV line 2: Farm CSV row has missing columns
+PASS missing farm headers: CSV is missing required column: Species
+PASS empty farm CSV: CSV is missing required column: Id
+PASS missing farm file: [Errno 2] No such file or directory: '/Users/ashfaq/Studies/COMP5008/Labs/.assignment_work/tmp/comp5008_input_h8aoyh9j/missing.csv'
+PASS truncated farm row: Farm CSV line 2: CSV row has missing columns
 PASS invalid coordinate in farm CSV: Farm CSV line 2: Coordinates must be numerical
-PASS missing edge headers: Edge CSV is missing required headers
+PASS missing edge headers: CSV is missing required column: TransportTime
 PASS invalid edge endpoint in CSV: Edge CSV line 2: 'Location not found: MISSING'
-PASS missing request headers: Request CSV is missing required headers
-REJECTED request CSV line 2: FarmID must contain ASCII letters/digits only
+PASS missing request headers: CSV is missing required column: EstimatedFeedstock
+REJECTED request CSV line 2: CSV row has missing columns
 PRIORITY GOOD: 10.00 / 199.07 = 0.050234
 HEAP after insertion: [GOOD:0.050234]
 PASS request loader continues after truncated row

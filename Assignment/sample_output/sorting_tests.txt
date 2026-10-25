@@ -1,22 +1,22 @@
 === SORTING EDGE CASES (SYNTHETIC UNIT FIXTURES) ===
-PASS mergeSort ()
-PASS quickSort ()
-PASS mergeSort (1,)
-PASS quickSort (1,)
-PASS mergeSort (2, 1)
-PASS quickSort (2, 1)
-PASS mergeSort (1, 2)
-PASS quickSort (1, 2)
-PASS mergeSort (3, 1, 2)
-PASS quickSort (3, 1, 2)
-PASS mergeSort (2, 2, 2)
-PASS quickSort (2, 2, 2)
-PASS mergeSort (5, 4, 3, 2, 1)
-PASS quickSort (5, 4, 3, 2, 1)
-PASS mergeSort (1, 2, 3, 4, 5)
-PASS quickSort (1, 2, 3, 4, 5)
-PASS mergeSort (1.5, 0.5, 1.5, 2.5)
-PASS quickSort (1.5, 0.5, 1.5, 2.5)
+PASS mergeSort []
+PASS quickSort []
+PASS mergeSort [1]
+PASS quickSort [1]
+PASS mergeSort [2 1]
+PASS quickSort [2 1]
+PASS mergeSort [1 2]
+PASS quickSort [1 2]
+PASS mergeSort [3 1 2]
+PASS quickSort [3 1 2]
+PASS mergeSort [2 2 2]
+PASS quickSort [2 2 2]
+PASS mergeSort [5 4 3 2 1]
+PASS quickSort [5 4 3 2 1]
+PASS mergeSort [1 2 3 4 5]
+PASS quickSort [1 2 3 4 5]
+PASS mergeSort [1.5 0.5 1.5 2.5]
+PASS quickSort [1.5 0.5 1.5 2.5]
 PASS Merge Sort preserves equal-key order
 PASS Quick Sort all-equal large input terminates
 === REQUIRED GRAPH-DERIVED INPUT CONDITIONS ===

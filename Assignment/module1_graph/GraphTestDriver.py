@@ -4,6 +4,7 @@
 # Purpose: Demonstrate graph operations, traversal, paths and error cases.
 
 import math
+import numpy as np
 from DataLoader import buildSystem, HUB
 from module1_graph.DSAGraph import DSAGraph
 from TestHelpers import check, expectError
@@ -41,11 +42,14 @@ def runTests():
 
     print("=== SMALL INDEPENDENT GRAPH FIXTURE ===")
     small = DSAGraph()
-    for label in ("A", "B", "C", "D", "E", "Z"):
+    for label in "ABCDEZ":
         small.addVertex(label)
-    for first, second, weight in (("A", "B", 4), ("A", "C", 1), ("C", "B", 2),
-                                  ("B", "D", 1), ("C", "D", 5), ("D", "E", 3)):
-        small.addEdge(first, second, weight)
+    small.addEdge("A", "B", 4)
+    small.addEdge("A", "C", 1)
+    small.addEdge("C", "B", 2)
+    small.addEdge("B", "D", 1)
+    small.addEdge("C", "D", 5)
+    small.addEdge("D", "E", 3)
     time, path = small.dijkstra("A", "E")
     print("Known shortest path:", path, "time:", time)
     check("Dijkstra beats direct expensive edges", time == 7 and str(path) == "[A, C, B, D, E]")
@@ -61,32 +65,41 @@ def runTests():
     expectError("invalid BFS source", KeyError, lambda: small.breadthFirstSearch("MISSING"))
     expectError("invalid DFS source", KeyError, lambda: small.depthFirstSearch("MISSING"))
     expectError("invalid Dijkstra destination", KeyError, lambda: small.dijkstra("A", "MISSING"))
-    for value in (0, -1, "bad", float("nan"), float("inf"), True, None):
+    invalid_weights = np.empty(7, dtype=object)
+    invalid_weights[0] = 0
+    invalid_weights[1] = -1
+    invalid_weights[2] = "bad"
+    invalid_weights[3] = float("nan")
+    invalid_weights[4] = float("inf")
+    invalid_weights[5] = True
+    invalid_weights[6] = None
+    for value in invalid_weights:
         expectError(f"invalid edge weight {value}", ValueError,
                     lambda value=value: small.addEdge("A", "Z", value))
     expectError("empty graph source", KeyError, lambda: DSAGraph().dijkstra("A", "B"))
     expectError("oversized integer weight", ValueError, lambda: small.addEdge("A", "Z", 10 ** 1000))
 
     huge = DSAGraph()
-    for label in ("A", "B", "C"):
+    for label in "ABC":
         huge.addVertex(label)
     huge.addEdge("A", "B", 1e308)
     huge.addEdge("B", "C", 1e308)
     expectError("overflowing path total is not reported as unreachable", ValueError,
                 lambda: huge.dijkstra("A", "C"))
     alternate = DSAGraph()
-    for label in ("A", "B", "C", "D", "T", "Z"):
+    for label in "ABCDTZ":
         alternate.addVertex(label)
-    for first, second, weight in (("A", "B", 1e308), ("B", "D", 1e308),
-                                  ("A", "C", 1), ("C", "T", 1.1e308)):
-        alternate.addEdge(first, second, weight)
+    alternate.addEdge("A", "B", 1e308)
+    alternate.addEdge("B", "D", 1e308)
+    alternate.addEdge("A", "C", 1)
+    alternate.addEdge("C", "T", 1.1e308)
     check("irrelevant overflow does not hide finite shortest route",
           alternate.dijkstra("A", "T")[0] == 1.1e308)
     check("unreachable stays unreachable despite overflow elsewhere",
           math.isinf(alternate.dijkstra("A", "Z")[0]))
 
     tree = DSAGraph()
-    for label in ("A", "B", "Z", "F", "G", "H"):
+    for label in "ABZFGH":
         tree.addVertex(label)
     tree.addEdge("A", "B", 1)
     _, cycle = tree.depthFirstSearch("A")

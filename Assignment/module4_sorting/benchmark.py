@@ -16,6 +16,22 @@ SEED = 5008
 REPETITIONS = 7
 
 
+def benchmarkSizes():
+    sizes = np.empty(3, dtype=int)
+    sizes[0] = 100
+    sizes[1] = 500
+    sizes[2] = 1000
+    return sizes
+
+
+def benchmarkConditions():
+    conditions = np.empty(3, dtype=object)
+    conditions[0] = "random"
+    conditions[1] = "nearly_sorted"
+    conditions[2] = "reversed"
+    return conditions
+
+
 def reachableFarmIDs(farms, graph, hub):
     identifiers = np.empty(farms.getCount(), dtype=object)
     count = 0
@@ -55,7 +71,7 @@ def makeCondition(base, condition, generator):
     records = base.copy()
     if condition == "random":
         shuffleArray(records, generator)
-    elif condition in ("nearly_sorted", "reversed"):
+    elif condition == "nearly_sorted" or condition == "reversed":
         mergeSort(records)
         if condition == "reversed":
             for index in range(len(records) // 2):
@@ -104,55 +120,78 @@ def runBenchmarks(scheduler=None):
     output.mkdir(exist_ok=True)
     rows = np.empty(18, dtype=object)
     row_index = 0
-    for size in (100, 500, 1000):
+    for size_value in benchmarkSizes():
+        size = int(size_value)
         base = makeRecords(scheduler, size, random.Random(SEED + size))
-        for condition_index, condition in enumerate(("random", "nearly_sorted", "reversed")):
+        for condition_index, condition in enumerate(benchmarkConditions()):
             inputs = makeCondition(base, condition, random.Random(SEED + size + condition_index + 1))
             totals = np.empty(2, dtype=float)
             totals[0] = 0.0
             totals[1] = 0.0
-            algorithms = (mergeSort, quickSort)
             # Warm-up outside the measured repetitions.
-            for algorithm in algorithms:
-                algorithm(inputs.copy())
+            mergeSort(inputs.copy())
+            quickSort(inputs.copy())
             for repetition in range(REPETITIONS):
                 # Alternate first algorithm to reduce ordering effects.
-                order = (0, 1) if repetition % 2 == 0 else (1, 0)
-                for algorithm_index in order:
+                for position in range(2):
+                    algorithm_index = position if repetition % 2 == 0 else 1 - position
                     working = inputs.copy()  # Fresh copy, made outside timing.
                     start = time.perf_counter_ns()
-                    algorithms[algorithm_index](working)
+                    if algorithm_index == 0:
+                        mergeSort(working)
+                    else:
+                        quickSort(working)
                     elapsed = time.perf_counter_ns() - start
                     totals[algorithm_index] += elapsed / 1_000_000
                     if not isSorted(working) or not sameRecords(inputs, working):
                         raise AssertionError("Sorting correctness/permutation check failed")
-            for algorithm_index, name in enumerate(("Merge Sort", "Quick Sort")):
+            for algorithm_index in range(2):
+                name = "Merge Sort" if algorithm_index == 0 else "Quick Sort"
                 mean = totals[algorithm_index] / REPETITIONS
-                rows[row_index] = (size, condition, name, REPETITIONS, mean)
+                row = np.empty(5, dtype=object)
+                row[0] = size
+                row[1] = condition
+                row[2] = name
+                row[3] = REPETITIONS
+                row[4] = mean
+                rows[row_index] = row
                 row_index += 1
                 print(f"{size:4} {condition:14} {name:10} mean={mean:.6f} ms")
             if size == 1000 and condition == "random":
                 writeCollectionRecords(output / "sorting_input_1000.csv", inputs)
-                for algorithm, filename in ((mergeSort, "merge_sorted_1000.csv"),
-                                            (quickSort, "quick_sorted_1000.csv")):
-                    working = inputs.copy()
-                    algorithm(working)
-                    writeCollectionRecords(output / filename, working)
+                working = inputs.copy()
+                mergeSort(working)
+                writeCollectionRecords(output / "merge_sorted_1000.csv", working)
+                working = inputs.copy()
+                quickSort(working)
+                writeCollectionRecords(output / "quick_sorted_1000.csv", working)
 
     with (output / "benchmark_results.csv").open("w", newline="", encoding="utf-8") as destination:
         writer = csv.writer(destination, lineterminator="\n")
-        writer.writerow(("Records", "Condition", "Algorithm", "Repetitions", "MeanMilliseconds"))
+        header = np.empty(5, dtype=object)
+        header[0] = "Records"
+        header[1] = "Condition"
+        header[2] = "Algorithm"
+        header[3] = "Repetitions"
+        header[4] = "MeanMilliseconds"
+        writer.writerow(header)
         writer.writerows(rows)
-    metadata = {"seed": SEED, "repetitions": REPETITIONS,
-                "python": platform.python_version(), "numpy": np.__version__,
-                "platform": platform.platform(),
-                "processor": platform.processor(), "timer": "time.perf_counter_ns",
-                "farm_records": scheduler.farms.getCount(),
-                "vertices": scheduler.graph.getVertexCount(),
-                "edges": scheduler.graph.getEdgeCount(),
-                "dataset_generation_timed": False, "input_copy_timed": False,
-                "verification_timed": False}
-    (output / "benchmark_environment.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    with (output / "benchmark_environment.json").open("w", encoding="utf-8") as destination:
+        destination.write("{\n")
+        destination.write('  "seed": ' + json.dumps(SEED) + ",\n")
+        destination.write('  "repetitions": ' + json.dumps(REPETITIONS) + ",\n")
+        destination.write('  "python": ' + json.dumps(platform.python_version()) + ",\n")
+        destination.write('  "numpy": ' + json.dumps(np.__version__) + ",\n")
+        destination.write('  "platform": ' + json.dumps(platform.platform()) + ",\n")
+        destination.write('  "processor": ' + json.dumps(platform.processor()) + ",\n")
+        destination.write('  "timer": "time.perf_counter_ns",\n')
+        destination.write('  "farm_records": ' + json.dumps(scheduler.farms.getCount()) + ",\n")
+        destination.write('  "vertices": ' + json.dumps(scheduler.graph.getVertexCount()) + ",\n")
+        destination.write('  "edges": ' + json.dumps(scheduler.graph.getEdgeCount()) + ",\n")
+        destination.write('  "dataset_generation_timed": false,\n')
+        destination.write('  "input_copy_timed": false,\n')
+        destination.write('  "verification_timed": false\n')
+        destination.write("}\n")
     return rows
 
 

@@ -14,6 +14,13 @@ from common.DSAStack import DSAStack
 from module1_graph.DSAGraphNode import DSAGraphNode, DSAGraphEdge
 
 
+def makePair(first, second):
+    pair = np.empty(2, dtype=object)
+    pair[0] = first
+    pair[1] = second
+    return pair
+
+
 class DSAGraph:
     def __init__(self):
         self._vertices = DSALinkedList()
@@ -87,7 +94,7 @@ class DSAGraph:
         return output
 
     def breadthFirstSearch(self, source):
-        """Return (label, level) pairs in BFS order; unreachable vertices excluded."""
+        """Return label/level arrays in BFS order; unreachable vertices excluded."""
         start = self.getVertex(source)
         levels = np.empty(self._count, dtype=int)
         for index in range(self._count):
@@ -98,7 +105,7 @@ class DSAGraph:
         result = DSALinkedList()
         while not queue.isEmpty():
             current = queue.dequeue()
-            result.insertLast((current.label, int(levels[current.index])))
+            result.insertLast(makePair(current.label, int(levels[current.index])))
             for edge in current.adjacent:
                 neighbor = edge.destination
                 if levels[neighbor.index] == -1:
@@ -141,7 +148,7 @@ class DSAGraph:
             stack = DSAStack()
             colours[root.index] = 1
             order.insertLast(root.label)
-            stack.push((root, iter(root.adjacent)))
+            stack.push(makePair(root, iter(root.adjacent)))
             while not stack.isEmpty():
                 current, neighbors = stack.top()
                 edge = next(neighbors, None)
@@ -154,7 +161,7 @@ class DSAGraph:
                     parents[neighbor.index] = current
                     colours[neighbor.index] = 1
                     order.insertLast(neighbor.label)
-                    stack.push((neighbor, iter(neighbor.adjacent)))
+                    stack.push(makePair(neighbor, iter(neighbor.adjacent)))
                 elif (colours[neighbor.index] == 1
                       and neighbor is not parents[current.index]
                       and cycle.isEmpty()):
@@ -170,10 +177,12 @@ class DSAGraph:
         for vertex in self._vertices:
             if colours[vertex.index] == 0:
                 visit(vertex)
-        return order, cycle
+        return makePair(order, cycle)
 
     def dijkstra(self, source, destination):
-        """Return (minutes, linked-list path). Unreachable means (inf, empty).
+        """Return an array containing minutes and the linked-list path.
+
+        Unreachable means infinite minutes and an empty path.
 
         Select the next vertex by a linear scan: O(V^2 + E), O(V) workspace.
         Keep direct vertex references in edges to avoid lookup during relaxation.
@@ -226,4 +235,4 @@ class DSAGraph:
             while cursor is not None:
                 path.insertFirst(cursor.label)
                 cursor = previous[cursor.index]
-        return float(distances[target.index]), path
+        return makePair(float(distances[target.index]), path)

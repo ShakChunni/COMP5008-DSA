@@ -21,7 +21,8 @@ def mergeSort(records):
         middle = (left + right) // 2
         recurse(left, middle)
         recurse(middle + 1, right)
-        first, second = left, middle + 1
+        first = left
+        second = middle + 1
         for target in range(left, right + 1):
             if (first <= middle and
                     (second > right or records[first].transport_time <= records[second].transport_time)):
@@ -56,7 +57,8 @@ def quickSort(records):
         pivot = median(records[left].transport_time,
                        records[(left + right) // 2].transport_time,
                        records[right].transport_time)
-        first, second = left - 1, right + 1
+        first = left - 1
+        second = right + 1
         while True:
             first += 1
             while records[first].transport_time < pivot:

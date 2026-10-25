@@ -23,6 +23,8 @@ You can also run `python main.py`. It starts the same menu.
 
 NumPy is used for array storage, following the practicals. The graph algorithms,
 hash probing, heap operations and sorting algorithms are implemented in the code.
+CSV files are read and written with `csv.reader` and `csv.writer`. Header columns
+are found using a manual loop.
 
 ## Using the program
 

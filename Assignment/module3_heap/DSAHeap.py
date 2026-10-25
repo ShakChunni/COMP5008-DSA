@@ -35,7 +35,8 @@ class DSAHeap:
     def insert(self, request):
         priority = getattr(request, "priority", None)
         try:
-            valid = (not isinstance(priority, bool) and isinstance(priority, (int, float))
+            valid = (not isinstance(priority, bool)
+                     and (isinstance(priority, int) or isinstance(priority, float))
                      and math.isfinite(priority))
         except OverflowError:
             valid = False
