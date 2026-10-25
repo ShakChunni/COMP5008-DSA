@@ -1,6 +1,12 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Implement double-hashed farm lookup, deletion and table growth.
+
 # Adapted from my COMP5008 Practical 7: double hashing and prime-sized tables.
 # Reference: Cormen et al., Introduction to Algorithms, 4th ed., 2022.
 
+import numpy as np
 from FarmRecord import FarmRecord, validateFarmID
 from module2_hash.DSAHashEntry import DSAHashEntry
 
@@ -16,7 +22,7 @@ class DSAHashTable:
         self._threshold = 0.7
 
     def _createArray(self, size):
-        entries = [None] * size
+        entries = np.empty(size, dtype=object)
         for index in range(size):
             entries[index] = DSAHashEntry()
         return entries

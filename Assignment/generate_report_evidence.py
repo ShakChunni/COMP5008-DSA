@@ -1,9 +1,15 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Generate measured-result notes and CSV evidence for the report.
+
 """Create factual Markdown results and CSV figure inputs from the running code."""
 
 import contextlib
 import csv
 import io
 import json
+import numpy as np
 from DataLoader import ROOT, buildSystem, loadRequests
 from prepare_data import HUB_LAT, HUB_LNG
 
@@ -16,7 +22,7 @@ def main():
     with contextlib.redirect_stdout(captured):
         records, farms, graph, scheduler = buildSystem()
         accepted, rejected = loadRequests(scheduler, ROOT / "data/collection_requests.csv")
-        collected = [None] * accepted
+        collected = np.empty(accepted, dtype=object)
         for index in range(accepted):
             collected[index] = scheduler.extract_priority()
     with (figures / "graph_vertices.csv").open("w", newline="", encoding="utf-8") as target:
@@ -75,7 +81,7 @@ def main():
                    f"{request.feedstock:.2f} | {request.transport_time:.2f} | {request.priority:.6f} |\n")
     result += "\nThe required five-extraction example is the first five rows. Equal priorities use FIFO insertion order.\n\n"
     result += "## Sorting measurements\n\n"
-    result += (f"Python {environment['python']}; {environment['platform']}; "
+    result += (f"Python {environment['python']}; NumPy {environment['numpy']}; {environment['platform']}; "
                f"processor `{environment['processor']}`. Base seed {environment['seed']}; "
                f"{environment['repetitions']} repetitions; one warm-up per algorithm/case. "
                "Mean time in milliseconds; `time.perf_counter_ns`. Input creation, copying, "

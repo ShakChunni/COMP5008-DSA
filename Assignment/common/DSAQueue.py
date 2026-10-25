@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Implement a FIFO queue using the custom linked list.
+
 # Adapted from my COMP5008 Practical 6 queue.
 from common.DSALinkedList import DSALinkedList
 

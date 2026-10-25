@@ -1,7 +1,13 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Implement the weighted graph, BFS, DFS and Dijkstra algorithms.
+
 # Adapted from my COMP5008 Practical 6 graph and linked-list implementation.
 # Algorithm reference: Cormen et al., Introduction to Algorithms, 4th ed., 2022.
 
 import math
+import numpy as np
 from common.DSALinkedList import DSALinkedList
 from common.DSAQueue import DSAQueue
 from common.DSAStack import DSAStack
@@ -83,14 +89,16 @@ class DSAGraph:
     def breadthFirstSearch(self, source):
         """Return (label, level) pairs in BFS order; unreachable vertices excluded."""
         start = self.getVertex(source)
-        levels = [-1] * self._count
+        levels = np.empty(self._count, dtype=int)
+        for index in range(self._count):
+            levels[index] = -1
         levels[start.index] = 0
         queue = DSAQueue()
         queue.enqueue(start)
         result = DSALinkedList()
         while not queue.isEmpty():
             current = queue.dequeue()
-            result.insertLast((current.label, levels[current.index]))
+            result.insertLast((current.label, int(levels[current.index])))
             for edge in current.adjacent:
                 neighbor = edge.destination
                 if levels[neighbor.index] == -1:
@@ -119,8 +127,11 @@ class DSAGraph:
         In an undirected graph the edge to the parent is not a cycle.
         """
         start = self.getVertex(source)
-        colours = [0] * self._count
-        parents = [None] * self._count
+        colours = np.empty(self._count, dtype=int)
+        parents = np.empty(self._count, dtype=object)
+        for index in range(self._count):
+            colours[index] = 0
+            parents[index] = None
         order = DSALinkedList()
         cycle = DSALinkedList()
 
@@ -169,9 +180,13 @@ class DSAGraph:
         """
         start = self.getVertex(source)
         target = self.getVertex(destination)
-        distances = [math.inf] * self._count
-        previous = [None] * self._count
-        finished = [False] * self._count
+        distances = np.empty(self._count, dtype=float)
+        previous = np.empty(self._count, dtype=object)
+        finished = np.empty(self._count, dtype=bool)
+        for index in range(self._count):
+            distances[index] = math.inf
+            previous[index] = None
+            finished[index] = False
         distances[start.index] = 0.0
         overflow_seen = False
 
@@ -192,7 +207,7 @@ class DSAGraph:
                 neighbor = edge.destination
                 if finished[neighbor.index]:
                     continue
-                candidate = distances[current.index] + edge.weight
+                candidate = float(distances[current.index]) + edge.weight
                 if not math.isfinite(candidate):
                     # An overflowing alternative cannot improve a finite route.
                     overflow_seen = True
@@ -211,4 +226,4 @@ class DSAGraph:
             while cursor is not None:
                 path.insertFirst(cursor.label)
                 cursor = previous[cursor.index]
-        return distances[target.index], path
+        return float(distances[target.index]), path

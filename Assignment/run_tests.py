@@ -1,6 +1,12 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Run module, input, integration and sorting benchmark demonstrations.
+
 """Run the required demonstrations and save readable report evidence."""
 
 import contextlib
+import numpy as np
 from DataLoader import ROOT, buildSystem, loadRequests, writeCollectionRecords
 from module1_graph.GraphTestDriver import runTests as graphTests
 from module2_hash.HashTestDriver import runTests as hashTests
@@ -19,13 +25,14 @@ def integrationTest():
     check("integration input counts", accepted == 12 and rejected == 7)
     for _ in range(5):
         scheduler.extract_priority()
-    original = [None] * scheduler.history.count()
+    original = np.empty(scheduler.history.count(), dtype=object)
     for index, request in enumerate(scheduler.history):
         original[index] = request
         check("request links all modules", farms.search(request.farm_id).farm_id == request.farm_id
               and graph.dijkstra(request.farm_id, scheduler.hub)[0] == request.transport_time
               and request.priority == request.feedstock / request.transport_time)
-    merged, quick = original[:], original[:]
+    merged = original.copy()
+    quick = original.copy()
     mergeSort(merged)
     quickSort(quick)
     check("both sorting algorithms integrated with request history",

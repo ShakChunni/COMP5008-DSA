@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Load CSV inputs, build the shared system and export collection records.
+
 import csv
 from pathlib import Path
 from common.DSALinkedList import DSALinkedList

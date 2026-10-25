@@ -1,4 +1,10 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Test sorting correctness, stability and required input conditions.
+
 import random
+import numpy as np
 from CollectionRequest import CollectionRequest
 from FarmRecord import FarmRecord
 from DataLoader import buildSystem
@@ -8,12 +14,21 @@ from TestHelpers import check
 
 
 def fixture(values):
-    records = [None] * len(values)
+    records = np.empty(len(values), dtype=object)
     for index, value in enumerate(values):
         request = CollectionRequest(f"TEST{index}", "testfarm", 10)
         request.transport_time = value
         records[index] = request
     return records
+
+
+def sameFarmIDs(before, after):
+    if len(before) != len(after):
+        return False
+    for index in range(len(before)):
+        if before[index] != after[index]:
+            return False
+    return True
 
 
 def runTests():
@@ -23,7 +38,7 @@ def runTests():
     for values in cases:
         original = fixture(values)
         for algorithm in (mergeSort, quickSort):
-            working = original[:]
+            working = original.copy()
             algorithm(working)
             check(f"{algorithm.__name__} {values}", isSorted(working) and sameRecords(original, working))
     repeated = fixture((2, 1, 2, 1, 2, 1))
@@ -41,7 +56,7 @@ def runTests():
         for condition in ("random", "nearly_sorted", "reversed"):
             inputs = makeCondition(base, condition, random.Random(SEED))
             if condition == "nearly_sorted":
-                baseline = base[:]
+                baseline = base.copy()
                 mergeSort(baseline)
                 moved = sum(inputs[index] is not baseline[index] for index in range(size))
                 check(f"{size}: exactly 10% records displaced", moved == size // 10)
@@ -50,7 +65,7 @@ def runTests():
                       all(inputs[index - 1].transport_time >= inputs[index].transport_time
                           for index in range(1, size)))
             for algorithm in (mergeSort, quickSort):
-                working = inputs[:]
+                working = inputs.copy()
                 algorithm(working)
                 check(f"{size} {condition} {algorithm.__name__}",
                       isSorted(working) and sameRecords(inputs, working))
@@ -60,16 +75,22 @@ def runTests():
                        "", "", "", "WA", "", "Australia")
     scheduler.farms.insert(extra)
     after = reachableFarmIDs(scheduler.farms, scheduler.graph, scheduler.hub)
-    check("benchmark ignores farms whose graph locations are not yet added", before == after)
+    check("benchmark ignores farms whose graph locations are not yet added",
+          sameFarmIDs(before, after))
     generated = makeRecords(scheduler, 100, random.Random(SEED))
     check("benchmark records still generate after farm-only insertion",
           len(generated) == 100 and all(request.farm_id != extra.farm_id for request in generated))
     scheduler.graph.addVertex(extra.farm_id, extra.name)
     check("benchmark also ignores newly added isolated farm locations",
-          reachableFarmIDs(scheduler.farms, scheduler.graph, scheduler.hub) == before)
+          sameFarmIDs(reachableFarmIDs(scheduler.farms, scheduler.graph, scheduler.hub), before))
     scheduler.graph.addEdge(extra.farm_id, scheduler.hub, 10)
-    check("benchmark includes farm after it is connected to hub",
-          extra.farm_id in reachableFarmIDs(scheduler.farms, scheduler.graph, scheduler.hub))
+    connected = reachableFarmIDs(scheduler.farms, scheduler.graph, scheduler.hub)
+    found = False
+    for farm_id in connected:
+        if farm_id == extra.farm_id:
+            found = True
+            break
+    check("benchmark includes farm after it is connected to hub", found)
     print("SORTING TESTS PASSED")
 
 

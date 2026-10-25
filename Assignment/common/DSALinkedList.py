@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Implement the custom doubly linked list and node operations.
+
 # Reused from my COMP5008 Practical 6 linked list.
 class DSAListNode:
     def __init__(self, value):

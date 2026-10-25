@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Demonstrate farm hashing, collisions, searches, deletion and resizing.
+
 from DataLoader import ROOT, loadFarmRecords
 from FarmRecord import FarmRecord
 from module2_hash.DSAHashTable import DSAHashTable

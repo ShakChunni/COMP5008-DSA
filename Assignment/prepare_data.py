@@ -1,7 +1,13 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Prepare the selected farm dataset and educational transport/request data.
+
 """Reproduce the selected dataset and educational network from the supplied CSV."""
 
 import csv
 import math
+import numpy as np
 from DataLoader import ROOT, HUB
 
 HUB_LAT = -32.23
@@ -23,7 +29,7 @@ def estimatedMinutes(first_lat, first_lng, second_lat, second_lng):
 
 def main():
     source_path = ROOT / "farm_dataset_sample.csv"
-    selected = [None] * 40
+    selected = np.empty(40, dtype=object)
     count = 0
     with source_path.open(newline="", encoding="utf-8-sig") as source:
         reader = csv.DictReader(source)

@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Test CSV validation, menu recovery and command-line execution.
+
 """Check normal CSV input failures and the menu's recovery/exit behavior."""
 
 import csv
@@ -30,7 +35,10 @@ def runTests():
             writer.writerow(headers)
             writer.writerow(row[:5])
         expectError("truncated farm row", ValueError, lambda: loadFarmRecords(path))
-        row[headers.index("Lat")] = "not-a-number"
+        for index in range(len(headers)):
+            if headers[index] == "Lat":
+                row[index] = "not-a-number"
+                break
         with path.open("w", newline="") as target:
             writer = csv.writer(target)
             writer.writerow(headers)
@@ -51,7 +59,7 @@ def runTests():
         # Isolate menu operations that write benchmark/CSV output from saved evidence.
         package = temporary / "package"
         shutil.copytree(ROOT, package, ignore=shutil.ignore_patterns(
-            "__pycache__", ".DS_Store", "sample_output", "report"))
+            "__pycache__", ".DS_Store", "sample_output", "report", ".venv", "*.zip"))
         new_farm = ("6\nnew01\nTest new farm\nPigs\n-32\n116\n\nTest Road\n"
                     "Test Town\nWA\n6000\nAustralia\n")
         session = (new_farm + "15\n16\nnew01\n17\nHUB\nnew01\n10\n"

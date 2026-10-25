@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Store farm details and validate IDs, names and coordinates.
+
 import math
 
 

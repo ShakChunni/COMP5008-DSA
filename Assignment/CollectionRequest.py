@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Store collection-request details and validate feedstock input.
+
 import math
 from FarmRecord import validateFarmID
 

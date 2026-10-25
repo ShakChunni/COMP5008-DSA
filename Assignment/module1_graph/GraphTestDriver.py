@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Demonstrate graph operations, traversal, paths and error cases.
+
 import math
 from DataLoader import buildSystem, HUB
 from module1_graph.DSAGraph import DSAGraph

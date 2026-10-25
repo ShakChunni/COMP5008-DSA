@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Demonstrate scheduling priorities, heap states and error handling.
+
 from DataLoader import ROOT, buildSystem, loadRequests
 from CollectionScheduler import CollectionScheduler
 from TestHelpers import check, expectError

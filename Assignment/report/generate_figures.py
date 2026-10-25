@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Generate optional Matplotlib figures from saved assignment evidence.
+
 """Matplotlib report figures from saved assignment evidence, not new experiments.
 
 This optional report helper needs matplotlib. The application/tests do not.

@@ -1,10 +1,19 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Implement Merge Sort and Quick Sort by transportation time.
+
 # Based on the sorting interfaces in my Practical 1; algorithms implemented here.
 # Reference: Cormen et al., Introduction to Algorithms, 4th ed., 2022.
+
+import numpy as np
 
 
 def mergeSort(records):
     """Stable, top-down Merge Sort by transport time; modify the array in place."""
-    temporary = [None] * len(records)
+    temporary = np.empty(len(records), dtype=object)
+    for index in range(len(records)):
+        temporary[index] = None
 
     def recurse(left, right):
         if left >= right:
@@ -57,7 +66,9 @@ def quickSort(records):
                 second -= 1
             if first >= second:
                 return second
-            records[first], records[second] = records[second], records[first]
+            temporary = records[first]
+            records[first] = records[second]
+            records[second] = temporary
 
     def recurse(left, right):
         while left < right:

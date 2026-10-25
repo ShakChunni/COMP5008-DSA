@@ -1,8 +1,14 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Implement the NumPy-backed max heap and operation traces.
+
 # Array-based max heap adapted from my COMP5008 Practical 8.
 # Equal priorities use insertion sequence to give FIFO tie-breaking.
 # Reference: Cormen et al., Introduction to Algorithms, 4th ed., 2022.
 
 import math
+import numpy as np
 from module3_heap.DSAHeapEntry import DSAHeapEntry
 
 
@@ -10,7 +16,9 @@ class DSAHeap:
     def __init__(self, capacity=100):
         if isinstance(capacity, bool) or not isinstance(capacity, int) or capacity < 1:
             raise ValueError("Heap capacity must be a positive integer")
-        self._heap = [None] * capacity
+        self._heap = np.empty(capacity, dtype=object)
+        for index in range(capacity):
+            self._heap[index] = None
         self._count = 0
         self._sequence = 0
 
@@ -45,7 +53,9 @@ class DSAHeap:
             parent = (index - 1) // 2
             if not self._higher(self._heap[index], self._heap[parent]):
                 break
-            self._heap[index], self._heap[parent] = self._heap[parent], self._heap[index]
+            temporary = self._heap[index]
+            self._heap[index] = self._heap[parent]
+            self._heap[parent] = temporary
             index = parent
         print("HEAP after insertion:", self.arrayString())
 
@@ -69,7 +79,9 @@ class DSAHeap:
                 child = right
             if not self._higher(self._heap[child], self._heap[index]):
                 break
-            self._heap[index], self._heap[child] = self._heap[child], self._heap[index]
+            temporary = self._heap[index]
+            self._heap[index] = self._heap[child]
+            self._heap[child] = temporary
             index = child
         print("HEAP after extraction:", self.arrayString())
         return result
@@ -79,7 +91,7 @@ class DSAHeap:
             yield self._heap[index].value
 
     def arrayString(self):
-        parts = [None] * self._count
+        parts = np.empty(self._count, dtype=object)
         for index in range(self._count):
             entry = self._heap[index]
             parts[index] = f"{entry.value.request_id}:{entry.priority:.6f}"

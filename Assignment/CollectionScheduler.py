@@ -1,3 +1,8 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Combine farm lookup, shortest routes, priority scheduling and history.
+
 import math
 from common.DSALinkedList import DSALinkedList
 from CollectionRequest import CollectionRequest

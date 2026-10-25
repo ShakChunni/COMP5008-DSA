@@ -1,8 +1,14 @@
+# Author: F.M. Ashfaq
+# Student ID: 23472297
+# Date: 2026-10-25
+# Purpose: Measure both custom sorts on reproducible graph-derived datasets.
+
 import csv
 import json
 import platform
 import random
 import time
+import numpy as np
 from DataLoader import ROOT, buildSystem, writeCollectionRecords
 from module4_sorting.DSAsorts import mergeSort, quickSort, isSorted
 
@@ -11,7 +17,7 @@ REPETITIONS = 7
 
 
 def reachableFarmIDs(farms, graph, hub):
-    identifiers = [None] * farms.getCount()
+    identifiers = np.empty(farms.getCount(), dtype=object)
     count = 0
     for farm in farms.records():
         # A farm may be added to the lookup table before its graph location.
@@ -26,9 +32,9 @@ def reachableFarmIDs(farms, graph, hub):
 
 def makeRecords(scheduler, size, generator):
     identifiers = reachableFarmIDs(scheduler.farms, scheduler.graph, scheduler.hub)
-    if not identifiers:
+    if len(identifiers) == 0:
         raise ValueError("No reachable farms available for sorting records")
-    records = [None] * size
+    records = np.empty(size, dtype=object)
     for index in range(size):
         farm_id = identifiers[generator.randrange(len(identifiers))]
         records[index] = scheduler.calculateRequest(f"B{size}_{index:04}", farm_id,
@@ -40,11 +46,13 @@ def shuffleArray(array, generator):
     # Fisher-Yates shuffle; reproducible without using a built-in sort.
     for index in range(len(array) - 1, 0, -1):
         other = generator.randrange(index + 1)
-        array[index], array[other] = array[other], array[index]
+        temporary = array[index]
+        array[index] = array[other]
+        array[other] = temporary
 
 
 def makeCondition(base, condition, generator):
-    records = base[:]
+    records = base.copy()
     if condition == "random":
         shuffleArray(records, generator)
     elif condition in ("nearly_sorted", "reversed"):
@@ -52,19 +60,24 @@ def makeCondition(base, condition, generator):
         if condition == "reversed":
             for index in range(len(records) // 2):
                 other = len(records) - index - 1
-                records[index], records[other] = records[other], records[index]
+                temporary = records[index]
+                records[index] = records[other]
+                records[other] = temporary
         else:
             # Select 10% distinct positions, then swap in disjoint pairs.
             count = len(records) // 10
             if count % 2 != 0:
                 raise ValueError("Nearly-sorted generation requires an even displacement count")
-            positions = [None] * len(records)
+            positions = np.empty(len(records), dtype=int)
             for index in range(len(records)):
                 positions[index] = index
             shuffleArray(positions, generator)
             for index in range(0, count, 2):
-                first, second = positions[index], positions[index + 1]
-                records[first], records[second] = records[second], records[first]
+                first = positions[index]
+                second = positions[index + 1]
+                temporary = records[first]
+                records[first] = records[second]
+                records[second] = temporary
     else:
         raise ValueError("Unknown input condition")
     return records
@@ -89,22 +102,24 @@ def runBenchmarks(scheduler=None):
         _, _, _, scheduler = buildSystem()
     output = ROOT / "sample_output"
     output.mkdir(exist_ok=True)
-    rows = [None] * 18
+    rows = np.empty(18, dtype=object)
     row_index = 0
     for size in (100, 500, 1000):
         base = makeRecords(scheduler, size, random.Random(SEED + size))
         for condition_index, condition in enumerate(("random", "nearly_sorted", "reversed")):
             inputs = makeCondition(base, condition, random.Random(SEED + size + condition_index + 1))
-            totals = [0.0, 0.0]
+            totals = np.empty(2, dtype=float)
+            totals[0] = 0.0
+            totals[1] = 0.0
             algorithms = (mergeSort, quickSort)
             # Warm-up outside the measured repetitions.
             for algorithm in algorithms:
-                algorithm(inputs[:])
+                algorithm(inputs.copy())
             for repetition in range(REPETITIONS):
                 # Alternate first algorithm to reduce ordering effects.
                 order = (0, 1) if repetition % 2 == 0 else (1, 0)
                 for algorithm_index in order:
-                    working = inputs[:]  # Fresh copy, made outside timing.
+                    working = inputs.copy()  # Fresh copy, made outside timing.
                     start = time.perf_counter_ns()
                     algorithms[algorithm_index](working)
                     elapsed = time.perf_counter_ns() - start
@@ -120,16 +135,17 @@ def runBenchmarks(scheduler=None):
                 writeCollectionRecords(output / "sorting_input_1000.csv", inputs)
                 for algorithm, filename in ((mergeSort, "merge_sorted_1000.csv"),
                                             (quickSort, "quick_sorted_1000.csv")):
-                    working = inputs[:]
+                    working = inputs.copy()
                     algorithm(working)
                     writeCollectionRecords(output / filename, working)
 
     with (output / "benchmark_results.csv").open("w", newline="", encoding="utf-8") as destination:
-        writer = csv.writer(destination)
+        writer = csv.writer(destination, lineterminator="\n")
         writer.writerow(("Records", "Condition", "Algorithm", "Repetitions", "MeanMilliseconds"))
         writer.writerows(rows)
     metadata = {"seed": SEED, "repetitions": REPETITIONS,
-                "python": platform.python_version(), "platform": platform.platform(),
+                "python": platform.python_version(), "numpy": np.__version__,
+                "platform": platform.platform(),
                 "processor": platform.processor(), "timer": "time.perf_counter_ns",
                 "farm_records": scheduler.farms.getCount(),
                 "vertices": scheduler.graph.getVertexCount(),

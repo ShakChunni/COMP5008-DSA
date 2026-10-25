@@ -1,163 +1,110 @@
-# COMP5008 Biogas Feedstock Collection Network
+# Biogas Feedstock Collection Network
 
-Python backend with four integrated modules: weighted graph, farm hash table,
-collection max heap, and Merge/Quick Sort reporting. No third-party packages needed for the application or tests.
+F.M. Ashfaq — 23472297
 
-## Run
+COMP5008 Data Structures and Algorithms
 
-From this folder:
+This program manages farm records and feedstock collection requests. It uses a
+graph to find transport routes, a hash table to look up farms, a max heap to choose
+the next collection, and Merge Sort or Quick Sort to prepare collection reports.
 
-```sh
-python3 main.py
-```
+## Setup and run
 
-`main.py` contains the interactive menu, matching the practicals. Paths resolve relative to this folder,
-so `python3 /absolute/path/to/Assignment/main.py` also works from another directory.
-Python 3.10+ is recommended; this version was checked with Python 3.14.3.
-`main.py` provides the interactive-entry-point role shown as `interactive_menu.py`
-in the brief's folder example.
-
-The menu starts with 40 farms and the graph already loaded, and an empty request
-heap. Option 13 loads the collection-request CSV (12 accepted, 7 deliberately invalid).
-Use options 10 and 11 to peek/extract; option 14 sorts and saves all accepted requests
-by transport time. Repeated CSV loading rejects repeated request IDs.
-
-## Tests and results
+From this folder, create and activate a virtual environment:
 
 ```sh
-python3 run_tests.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python interactive_menu.py
 ```
 
-This runs each module's driver, CSV/menu input tests, the integrated scenario and all 18 benchmark
-combinations. It saves logs, sorted collection CSVs and timing results in
-`sample_output/`, then refreshes `report/RESULTS.md` and `report/figure_data/`.
-Failures raise an error and stop the run; inspect the corresponding log.
+You can also run `python main.py`. It starts the same menu.
 
-Individual runs (use `-m` from this folder):
+NumPy is used for array storage, following the practicals. The graph algorithms,
+hash probing, heap operations and sorting algorithms are implemented in the code.
 
-```sh
-python3 -m module1_graph.GraphTestDriver
-python3 -m module2_hash.HashTestDriver
-python3 -m module3_heap.HeapTestDriver
-python3 -m module4_sorting.SortingTestDriver
-python3 -m module4_sorting.benchmark
-python3 InputTestDriver.py
-python3 generate_report_evidence.py
-```
+## Using the program
 
-## Files and responsibilities
+The program loads 40 farm records and a transport graph with 41 locations and
+55 undirected connections. The collection heap starts empty.
 
-| File/folder | Responsibility |
+Use the menu to display the network, run BFS or DFS, find a shortest route,
+search or update farm records, and add collection requests. Option 13 loads the
+supplied request data: 12 valid requests and 7 deliberate invalid cases.
+
+Collection priority is `P = F / T`, where `F` is the estimated feedstock and `T` is
+the shortest transport time to the hub. The request with the highest priority is
+collected first. Equal priorities follow arrival order.
+
+Option 14 sorts all accepted requests by transport time and exports them to
+`sample_output/collection_records_sorted.csv`. The records keep their pending,
+collected or cancelled status.
+
+Farm and network changes stay in memory for the current session. A new farm needs
+a graph location and transport connections before it can be scheduled.
+
+## Files
+
+| File or folder | What it does |
 |---|---|
-| `main.py` | Entry point and interactive driver |
-| `FarmRecord.py` | Farm fields and ID/name/coordinate validation |
-| `CollectionRequest.py` | Request fields and feedstock validation |
-| `CollectionScheduler.py` | Connects hash lookup, Dijkstra and heap; keeps request history |
-| `DataLoader.py` | CSV input, shared system construction and record export |
-| `common/` | Own linked list, queue and stack adapted from Practical 6 |
-| `module1_graph/` | Weighted adjacency-list graph and test driver |
-| `module2_hash/` | Double-hashing table, entries and test driver |
-| `module3_heap/` | Array max heap, entries and test driver |
-| `module4_sorting/` | Merge Sort, Quick Sort, tests and benchmark |
-| `prepare_data.py` | Recreates selected farm CSV and educational modelling CSVs |
-| `run_tests.py`, `TestHelpers.py` | Run all demonstrations and check results |
-| `generate_report_evidence.py` | Regenerates factual report tables and figure inputs |
-| `report/REPORT_GUIDE.md` | Detailed notes for writing your own report in Overleaf |
-| `report/RESULTS.md` | Actual results for the latest saved benchmark run |
-| `report/FIGURE_GUIDE.md`, `report/figures/` | Generated figures, captions and Overleaf placement |
-| `report/generate_figures.py` | Optional Matplotlib figure generator; separate plotting dependency |
+| `interactive_menu.py` | Menu and user input |
+| `main.py` | Starts the menu |
+| `FarmRecord.py`, `CollectionRequest.py` | Farm and request data with validation |
+| `DataLoader.py` | Loads CSV files and writes collection exports |
+| `CollectionScheduler.py` | Connects farm lookup, routing, priority and request history |
+| `common/` | Custom linked list, queue and stack |
+| `module1_graph/` | Graph, BFS, DFS, Dijkstra and graph tests |
+| `module2_hash/` | Double-hashed farm table and hash tests |
+| `module3_heap/` | Max heap and scheduling tests |
+| `module4_sorting/` | Merge Sort, Quick Sort, sorting tests and benchmarks |
+| `data/` | Farm, transport-connection and collection-request CSV files |
+| `sample_output/` | Test logs, sorted records and benchmark results |
+| `report/figure_data/` | Saved graph, BFS, priority and heap-state values |
+| `run_tests.py`, `TestHelpers.py`, `InputTestDriver.py` | Test runner and supporting checks |
+| `prepare_data.py` | Recreates the selected dataset and model inputs |
+| `generate_report_evidence.py` | Produces report results and figure data |
+| `requirements.txt` | Python dependency |
 
-## Data and assumptions
+## Tests and benchmarks
 
-The original `farm_dataset_sample.csv` is preserved. `data/dataset.csv` selects
-the first 40 eligible records in source order: WA, Open, confirmed category/species,
-cattle/pigs/sheep/goats, excluding names containing "proposed". Farm IDs and
-all source columns are retained. This is a selection from the supplied file,
-not an independently harvested or fully verified dataset.
-
-The proposed hub uses illustrative Kwinana-area coordinates (-32.23, 115.78).
-Connections follow a documented educational chain/chord pattern. Edge times use
-great-circle distance, a 1.3 road factor and 60 km/h. The last selected farm is
-deliberately isolated. These are model estimates, not real road-network measurements.
-Feedstock quantities are educational model tonnes, not measured waste production.
+With the virtual environment active:
 
 ```sh
-python3 prepare_data.py
+python run_tests.py
 ```
 
-This recreates the three files under `data/`; run it only when you want to reset
-them to the original deterministic model. It does not alter the supplied source CSV.
+This runs the four module drivers, input tests, integration tests and sorting
+benchmarks. It saves the results in `sample_output/` and refreshes the report data.
 
-## Programming choices
+You can run a module separately:
 
-Core graph adjacency uses our linked list; BFS/DFS use our queue/stack. The hash
-table and heap use indexed, preallocated Python lists as arrays; neither uses a
-dictionary for core lookup. Sorting is implemented manually. Standard-library CSV
-dictionaries only parse fields; JSON dictionaries only store benchmark metadata.
-There is no NetworkX, heapq, built-in sorting or third-party numerical library.
+```sh
+python -m module1_graph.GraphTestDriver
+python -m module2_hash.HashTestDriver
+python -m module3_heap.HeapTestDriver
+python -m module4_sorting.SortingTestDriver
+python -m module4_sorting.benchmark
+```
 
-Requests use P=F/T with positive F and positive reachable T. A request ID cannot
-be reused, and a farm cannot have two pending requests. Ties are FIFO. A request
-for a deleted farm is cancelled when it reaches the heap root. Accepted requests
-remain in history with PENDING/COLLECTED/CANCELLED status and can be sorted/exported.
-Transport times and priorities are snapshots calculated when requests are accepted;
-adding graph edges does not automatically recalculate existing requests.
-The deletion check uses the current lookup table: if the same FarmID is reinserted
-before its pending request reaches the root, that request remains eligible with
-its original calculated route/time. An ID that is still missing is cancelled.
+The benchmark tests both sorting algorithms with 100, 500 and 1,000 records under
+random, nearly sorted and reversed input. It uses seed 5008, one warm-up and seven
+measured repetitions. Running it again will replace the saved timing results.
 
-Menu insertions/deletions are in memory for that session. Deleting farm information
-does not remove its geographic vertex or routes through it. A new farm needs its
-graph vertex (option 16) and connections (option 17). CSV export is the record store;
-no separate database server is needed by the explicit implementation tasks.
-Benchmarks use only farms currently present in the graph with a positive hub route;
-new farm records without graph locations or connections are skipped.
+## Data and model
 
-## Before submission
+`data/dataset.csv` contains 40 selected WA records from `farm_dataset_sample.csv`.
+The original farm IDs and source fields are retained.
 
-- Read the final checklist in `report/REPORT_GUIDE.md`.
-- Confirm the supplied sample is acceptable as the farm-data source: the brief says
-  to collect data from the website and describes this CSV as an example.
-- Check missing Sections 10–11 and any extra unit restrictions. The full rubric,
-  including Graph 8 marks, is now confirmed by the supplied screenshot.
-- The brief shows `interactive_menu.py`; this version uses `main.py` at your request.
-- Confirm indexed Python lists are allowed as arrays under those unit restrictions.
-- Add author/date/purpose headers later; they are currently omitted at your request.
-- Produce `technical_report.pdf` with the Declaration of Originality first.
-- Package as `COMP5008_assignment_<studentID>.zip` with the matching top-level folder.
-- Submit the report to Turnitin AND the ZIP to the separate Blackboard assignment link.
+The hub is a model Kwinana-area location. Connections, feedstock amounts and
+transportation times are educational estimates. Edge times use coordinate distance,
+a factor of 1.3 and an assumed speed of 60 km/h. One farm is deliberately isolated
+to test unreachable routes.
 
-This working folder is not yet a final submission ZIP or technical report PDF.
+To recreate the input CSV files:
 
-## ZIP contents
+```sh
+python prepare_data.py
+```
 
-Name the ZIP `COMP5008_assignment_<studentID>.zip` and use the matching top-level
-folder. Include:
-
-- `main.py`, `README.md` and **all other root Python files**, including the shared
-  models/loaders, test runner, `TestHelpers.py`, `InputTestDriver.py`, data preparation
-  and evidence-generation scripts.
-- `common/` and all four `module*_*/` folders, with source files, `__init__.py`,
-  test drivers and the sorting benchmark.
-- `data/` with farm, transport-edge and collection-request CSVs.
-- Original `farm_dataset_sample.csv`, because `prepare_data.py` uses it.
-- `sample_output/` with operation traces, sorted exports, timings and environment metadata.
-- Final `technical_report.pdf`, with Declaration of Originality as its first page.
-- `report/` is optional supporting material; the final PDF is required regardless.
-
-Exclude `__pycache__/`, `*.pyc`, `.DS_Store`, `.git/` and temporary/editor files.
-The assignment-brief PDF is not needed in the submission ZIP. Keep the module
-folders rather than flattening imports. Run `python3 main.py` and `python3 run_tests.py`
-from an extracted copy before submitting.
-
-## Report figures
-
-Eight figures are available as vector PDFs and 300 dpi PNGs in `report/figures/`.
-Their colours match the supplied Containement_Not_Recovery paper. See
-`report/FIGURE_GUIDE.md` for captions, report placement, and regeneration instructions.
-The UML is explicitly required; other figures support the report. Include the
-required timing table as well as the benchmark plot. Regenerate figures after
-rerunning benchmarks so the figures and numerical table agree.
-
-Only `report/generate_figures.py` needs Matplotlib; this does not change the
-standard-library requirements of `main.py` or `run_tests.py`.
+This resets the three files in `data/` to the supplied model inputs.
