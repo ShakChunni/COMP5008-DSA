@@ -4,7 +4,7 @@
 # Purpose: Store collection-request details and validate feedstock input.
 
 import math
-from FarmRecord import validateFarmID
+from models.FarmRecord import validateFarmID
 
 
 class CollectionRequest:

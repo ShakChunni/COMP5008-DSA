@@ -7,16 +7,15 @@
 
 import contextlib
 import numpy as np
-from DataLoader import ROOT, buildSystem, loadRequests, writeCollectionRecords
+from services.DataLoader import ROOT, buildSystem, loadRequests, writeCollectionRecords
 from module1_graph.GraphTestDriver import runTests as graphTests
 from module2_hash.HashTestDriver import runTests as hashTests
 from module3_heap.HeapTestDriver import runTests as heapTests
 from module4_sorting.SortingTestDriver import runTests as sortingTests
 from module4_sorting.DSAsorts import mergeSort, quickSort, isSorted
 from module4_sorting.benchmark import runBenchmarks, sameRecords
-from TestHelpers import check
-from generate_report_evidence import main as generateEvidence
-from InputTestDriver import runTests as inputTests
+from tests.TestHelpers import check
+from tests.InputTestDriver import runTests as inputTests
 
 
 def integrationTest():
@@ -61,7 +60,6 @@ def main():
     runSuite("integration_tests.txt", integrationTest)
     runSuite("benchmark_run.txt", runBenchmarks)
     print("All module tests, integration tests and 18 benchmark combinations passed.")
-    generateEvidence()
 
 
 if __name__ == "__main__":

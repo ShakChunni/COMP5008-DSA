@@ -7,12 +7,12 @@ import csv
 import numpy as np
 from pathlib import Path
 from common.DSALinkedList import DSALinkedList
-from FarmRecord import FarmRecord
+from models.FarmRecord import FarmRecord
 from module1_graph.DSAGraph import DSAGraph
 from module2_hash.DSAHashTable import DSAHashTable
-from CollectionScheduler import CollectionScheduler
+from services.CollectionScheduler import CollectionScheduler
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 HUB = "HUB"
 
 

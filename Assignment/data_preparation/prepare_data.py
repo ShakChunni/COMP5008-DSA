@@ -8,7 +8,7 @@
 import csv
 import math
 import numpy as np
-from DataLoader import ROOT, HUB, columnIndex, fieldValue
+from services.DataLoader import ROOT, HUB, columnIndex, fieldValue
 
 HUB_LAT = -32.23
 HUB_LNG = 115.78
@@ -37,7 +37,7 @@ def writeThreeFields(writer, first, second, third):
 
 
 def main():
-    source_path = ROOT / "farm_dataset_sample.csv"
+    source_path = ROOT / "data_preparation/farm_dataset_sample.csv"
     selected = np.empty(40, dtype=object)
     count = 0
     with source_path.open(newline="", encoding="utf-8-sig") as source:

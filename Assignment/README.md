@@ -52,9 +52,9 @@ a graph location and transport connections before it can be scheduled.
 |---|---|
 | `interactive_menu.py` | Menu and user input |
 | `main.py` | Starts the menu |
-| `FarmRecord.py`, `CollectionRequest.py` | Farm and request data with validation |
-| `DataLoader.py` | Loads CSV files and writes collection exports |
-| `CollectionScheduler.py` | Connects farm lookup, routing, priority and request history |
+| `models/` | FarmRecord and CollectionRequest data objects with validation |
+| `services/DataLoader.py` | Loads CSV files and writes collection exports |
+| `services/CollectionScheduler.py` | Connects farm lookup, routing, priority and request history |
 | `common/` | Custom linked list, queue and stack |
 | `module1_graph/` | Graph, BFS, DFS, Dijkstra and graph tests |
 | `module2_hash/` | Double-hashed farm table and hash tests |
@@ -63,9 +63,9 @@ a graph location and transport connections before it can be scheduled.
 | `data/` | Farm, transport-connection and collection-request CSV files |
 | `sample_output/` | Test logs, sorted records and benchmark results |
 | `report/figure_data/` | Saved graph, BFS, priority and heap-state values |
-| `run_tests.py`, `TestHelpers.py`, `InputTestDriver.py` | Test runner and supporting checks |
-| `prepare_data.py` | Recreates the selected dataset and model inputs |
-| `generate_report_evidence.py` | Produces report results and figure data |
+| `tests/` | Test runner, shared test helpers and input/menu tests |
+| `data_preparation/` | Original Blackboard CSV and script for preparing model inputs |
+| `report/generate_report_evidence.py` | Optional local tool for report results and figure data |
 | `requirements.txt` | Python dependency |
 
 ## Tests and benchmarks
@@ -73,11 +73,12 @@ a graph location and transport connections before it can be scheduled.
 With the virtual environment active:
 
 ```sh
-python run_tests.py
+python3 -m tests.run_tests
 ```
 
 This runs the four module drivers, input tests, integration tests and sorting
-benchmarks. It saves the results in `sample_output/` and refreshes the report data.
+benchmarks. It saves the results in `sample_output/`. Report and figure generation
+are separate from the tests.
 
 You can run a module separately:
 
@@ -95,7 +96,8 @@ measured repetitions. Running it again will replace the saved timing results.
 
 ## Data and model
 
-`data/dataset.csv` contains 40 selected WA records from `farm_dataset_sample.csv`.
+`data/dataset.csv` contains 40 selected WA records from the Blackboard-provided
+`data_preparation/farm_dataset_sample.csv`.
 The original farm IDs and source fields are retained.
 
 The hub is a model Kwinana-area location. Connections, feedstock amounts and
@@ -106,7 +108,51 @@ to test unreachable routes.
 To recreate the input CSV files:
 
 ```sh
-python prepare_data.py
+python3 -m data_preparation.prepare_data
 ```
 
 This resets the three files in `data/` to the supplied model inputs.
+
+## Submission contents
+
+Use the following structure inside `COMP5008_assignment_23472297.zip`:
+
+```text
+COMP5008_assignment_23472297/
+  README.md
+  requirements.txt
+  main.py
+  interactive_menu.py
+  models/
+  services/
+  data/
+  data_preparation/
+  common/
+  module1_graph/
+  module2_hash/
+  module3_heap/
+  module4_sorting/
+  tests/
+  sample_output/
+  technical_report.pdf
+```
+
+Include the module test drivers, shared tests, benchmark code, and input CSV files.
+`sample_output/` contains example execution logs, measured timings and exported
+records; the folder name follows the assignment specification and does not mean
+that the farm identities are invented.
+
+The farm records are source data. The proposed hub, transport network, estimated
+travel times and feedstock quantities are educational modelling assumptions.
+
+Do not include `.venv/`, `__pycache__/`, `.DS_Store`, the assignment question PDF,
+or the local `report/` working folder. The final report PDF contains the required
+diagrams; the figure-generation scripts and draft/audit notes are local tools.
+
+Optional local report-evidence refresh, after running the tests:
+
+```sh
+python3 -m report.generate_report_evidence
+```
+
+The test runner does not depend on this optional tool.

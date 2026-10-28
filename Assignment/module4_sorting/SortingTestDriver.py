@@ -5,13 +5,13 @@
 
 import random
 import numpy as np
-from CollectionRequest import CollectionRequest
-from FarmRecord import FarmRecord
-from DataLoader import buildSystem
+from models.CollectionRequest import CollectionRequest
+from models.FarmRecord import FarmRecord
+from services.DataLoader import buildSystem
 from module4_sorting.DSAsorts import mergeSort, quickSort, isSorted
 from module4_sorting.benchmark import makeRecords, makeCondition, sameRecords, reachableFarmIDs, SEED
 from module4_sorting.benchmark import benchmarkSizes, benchmarkConditions
-from TestHelpers import check
+from tests.TestHelpers import check
 
 
 def fixture(values):

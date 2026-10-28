@@ -4,10 +4,10 @@
 # Purpose: Demonstrate farm hashing, collisions, searches, deletion and resizing.
 
 import numpy as np
-from DataLoader import ROOT, loadFarmRecords
-from FarmRecord import FarmRecord
+from services.DataLoader import ROOT, loadFarmRecords
+from models.FarmRecord import FarmRecord
 from module2_hash.DSAHashTable import DSAHashTable
-from TestHelpers import check, expectError
+from tests.TestHelpers import check, expectError
 
 
 def runTests():

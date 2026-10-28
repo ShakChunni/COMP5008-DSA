@@ -5,7 +5,7 @@
 
 import math
 from common.DSALinkedList import DSALinkedList
-from CollectionRequest import CollectionRequest
+from models.CollectionRequest import CollectionRequest
 from module3_heap.DSAHeap import DSAHeap
 
 

@@ -12,8 +12,8 @@ import sys
 import tempfile
 import numpy as np
 from pathlib import Path
-from DataLoader import ROOT, buildSystem, loadFarmRecords, loadGraph, loadRequests, columnIndex, fieldValue
-from TestHelpers import check, expectError
+from services.DataLoader import ROOT, buildSystem, loadFarmRecords, loadGraph, loadRequests, columnIndex, fieldValue
+from tests.TestHelpers import check, expectError
 
 
 def runTests():

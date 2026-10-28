@@ -4,9 +4,9 @@
 # Purpose: Demonstrate scheduling priorities, heap states and error handling.
 
 import numpy as np
-from DataLoader import ROOT, buildSystem, loadRequests
-from CollectionScheduler import CollectionScheduler
-from TestHelpers import check, expectError
+from services.DataLoader import ROOT, buildSystem, loadRequests
+from services.CollectionScheduler import CollectionScheduler
+from tests.TestHelpers import check, expectError
 
 
 def runTests():

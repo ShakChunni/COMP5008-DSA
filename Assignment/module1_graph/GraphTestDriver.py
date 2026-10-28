@@ -5,9 +5,9 @@
 
 import math
 import numpy as np
-from DataLoader import buildSystem, HUB
+from services.DataLoader import buildSystem, HUB
 from module1_graph.DSAGraph import DSAGraph
-from TestHelpers import check, expectError
+from tests.TestHelpers import check, expectError
 
 
 def runTests():

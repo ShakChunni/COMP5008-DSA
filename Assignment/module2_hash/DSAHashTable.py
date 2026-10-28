@@ -7,7 +7,7 @@
 # Reference: Cormen et al., Introduction to Algorithms, 4th ed., 2022.
 
 import numpy as np
-from FarmRecord import FarmRecord, validateFarmID
+from models.FarmRecord import FarmRecord, validateFarmID
 from module2_hash.DSAHashEntry import DSAHashEntry
 
 

@@ -9,7 +9,7 @@ import platform
 import random
 import time
 import numpy as np
-from DataLoader import ROOT, buildSystem, writeCollectionRecords
+from services.DataLoader import ROOT, buildSystem, writeCollectionRecords
 from module4_sorting.DSAsorts import mergeSort, quickSort, isSorted
 
 SEED = 5008

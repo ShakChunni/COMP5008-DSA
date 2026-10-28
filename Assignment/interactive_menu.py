@@ -5,8 +5,8 @@
 
 import csv
 import numpy as np
-from DataLoader import ROOT, HUB, buildSystem, loadRequests, writeCollectionRecords
-from FarmRecord import FarmRecord
+from services.DataLoader import ROOT, HUB, buildSystem, loadRequests, writeCollectionRecords
+from models.FarmRecord import FarmRecord
 from module4_sorting.DSAsorts import mergeSort, quickSort
 from module4_sorting.benchmark import runBenchmarks
 
