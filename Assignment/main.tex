@@ -112,7 +112,7 @@
 
 This report presents a Python backend for a model biogas feedstock collection network. The system integrates a weighted undirected graph, a double-hashed farm table, an array-based max heap, and custom Merge Sort and Quick Sort functions. NumPy arrays store hash slots, heap entries, graph working state and sorting buffers, while the algorithms perform their operations manually. Farm records are found through the hash table, Dijkstra provides a model transport time to the hub, the scheduler calculates request priority, and accepted requests are sorted for reporting.
 
-The implementation uses 40 selected Western Australian farm records from a supplied 229-record sample. The graph contains 41 vertices including the hub and 55 undirected weighted edges. One farm is deliberately isolated to test unreachable-path handling. For a valid request, priority is $P=F/T$, where $F$ is model feedstock and $T$ is the shortest one-way model transport time. Twelve valid requests are accepted and seven invalid requests are rejected. The first five heap extractions are R011, R003, R004, R001 and R009.
+The implementation uses 70 selected Western Australian farm records from a supplied 229-record sample. All 70 were checked against their live Farm Transparency Project profile pages. The graph contains 71 vertices including the hub and 98 undirected weighted edges. One farm is deliberately isolated to test unreachable-path handling. For a valid request, priority is $P=F/T$, where $F$ is model feedstock and $T$ is the shortest one-way model transport time. Twelve valid requests are accepted and seven invalid requests are rejected. The first five heap extractions are R011, R003, R004, R001 and R009.
 
 The hash table starts at capacity 53 and grows to 107 before insertion 38 would push the live load above 0.7. Sorting is measured for 100, 500 and 1,000 records under random, nearly sorted and reversed input. Quick Sort is faster in every saved timing row for this run, while Merge Sort remains stable and keeps its $\Theta(n\log n)$ time bound. The timings are local measurements rather than a universal speed ranking.
 
@@ -146,6 +146,8 @@ The system uses a weighted adjacency-list graph for the transport model, a custo
 
 This is a backend and data-structure demonstration. It does not include a GUI, SQL database, live GIS routing, vehicle allocation or a full logistics optimiser. The interactive menu is implemented in \texttt{interactive\_menu.py}, and \texttt{main.py} launches that menu. CSV files provide input and store exported collection records. NumPy is a runtime dependency alongside Python.
 
+The code is split into packages. The four \path{module*} folders hold the required structures and their test drivers. \path{models/} holds the farm and request objects, and \path{services/} holds CSV loading and the scheduler. \path{common/} provides the linked list, queue and stack. \path{data_preparation/} rebuilds the input CSV files, and \path{tests/} runs every driver and saves the logs.
+
 % ================================================================
 \section{System Overview and Design Justification}
 \label{sec:overview}
@@ -169,7 +171,14 @@ Figure~\ref{fig:system-uml} shows the implemented module interaction. \texttt{Co
   \label{fig:system-uml}
 \end{figure}
 
-The request data flow is compact: request $\rightarrow$ hash lookup $\rightarrow$ Dijkstra $\rightarrow$ $P=F/T$ $\rightarrow$ max heap. Accepted request history then passes to Merge Sort or Quick Sort and may be exported to CSV. The four modules therefore operate on the same request state rather than on separate demonstration data.
+The request data flow is compact: request $\rightarrow$ hash lookup $\rightarrow$ Dijkstra $\rightarrow$ $P=F/T$ $\rightarrow$ max heap. Accepted request history then passes to Merge Sort or Quick Sort and may be exported to CSV. The four modules therefore operate on the same request state rather than on separate demonstration data. Figure~\ref{fig:data-flow} shows this flow from the input CSV files to the heap and the sorted export.
+
+\begin{figure}[!htbp]
+  \centering
+  \reportfigure[0.88\linewidth]{figures/02_module_data_flow.pdf}
+  \caption{Data flow between the modules. Farm records and the model network feed the scheduler, which sends requests to the heap and to accepted history for sorting.}
+  \label{fig:data-flow}
+\end{figure}
 
 \subsection{Data-structure choices}
 
@@ -184,7 +193,7 @@ Table~\ref{tab:structure-choices} gives the main design choices and the reason f
 \hline
 \textbf{Module} & \textbf{Structure} & \textbf{Reason for the choice} \\
 \hline
-Transport network & Weighted undirected adjacency list & The model is sparse: 41 vertices and 55 undirected edges. Only existing connections are stored, and neighbours can be traversed directly by BFS, DFS and Dijkstra. \\
+Transport network & Weighted undirected adjacency list & The model is sparse: 71 vertices and 98 undirected edges. Only existing connections are stored, and neighbours can be traversed directly by BFS, DFS and Dijkstra. \\
 \hline
 Farm records & NumPy-backed double-hashed table & Requests look up a complete farm record by FarmID. NumPy stores the slots; probing, tombstones and resizing are handled manually. \\
 \hline
@@ -197,7 +206,7 @@ Graph support & Linked lists, queue, stack and NumPy arrays & Linked lists store
 \end{tabularx}
 \end{table}
 
-The adjacency list is preferable to an adjacency matrix because only 55 undirected connections are present. Double hashing keeps FarmID lookup inside one table without allocating chains. The max heap matches the priority rule directly. Merge Sort provides stable reporting, while Quick Sort uses less auxiliary array memory.
+The adjacency list is preferable to an adjacency matrix because only 98 undirected connections are present. Double hashing keeps FarmID lookup inside one table without allocating chains. The max heap matches the priority rule directly. Merge Sort provides stable reporting, while Quick Sort uses less auxiliary array memory.
 
 % ================================================================
 \section{Dataset and Modelling Assumptions}
@@ -206,15 +215,15 @@ The adjacency list is preferable to an adjacency matrix because only 55 undirect
 
 \subsection{Farm records and hub}
 
-The supplied source sample contains 229 Western Australian records with unique IDs. The assignment dataset keeps 40 rows in source order. Selection requires WA, an \texttt{Open} status, a Species value of cattle/cows, pigs, sheep or goats, no ``unconfirmed'' text in the Species or Categories fields, and no ``proposed'' text in the facility name. Original FarmIDs are retained. Stored information includes the ID, name, species, coordinates and address fields, with status and retained source URLs.
+The supplied source sample, \path{data_preparation/farm_dataset_sample.csv}, contains 229 Western Australian records with unique IDs. \path{data_preparation/prepare_data.py} writes the assignment dataset, \path{data/dataset.csv}, which keeps 70 rows in source order. Selection requires WA, an \texttt{Open} status, a Species value of cattle/cows, pigs, sheep or goats, no ``unconfirmed'' text in the Species or Categories fields, and no ``proposed'' text in the facility name. Original FarmIDs are retained. Stored information includes the ID, name, species, coordinates and address fields, with status and retained source URLs.
 
-The records are associated with the Farm Transparency Project public facility map \cite{farmtransparency}. The implementation uses the supplied sample rather than independently scraping the website. A sample public listing was checked during development, but the report does not claim that all 40 facilities were re-collected or verified from the live website. Whether reuse of the supplied sample satisfies the unit's collection requirement must be confirmed against the complete unit instructions; it is not presented here as independent website collection.
+The records come from the Farm Transparency Project public facility map \cite{farmtransparency}. Each row keeps its source map and profile URLs. On 28 October 2026, all 70 profile pages were checked on the live website. The facility name and coordinates matched the dataset for every record. The same check passed for all 123 records in the sample that meet the selection rules.
 
-The graph uses a model hub labelled \texttt{HUB} at latitude $-32.23$ and longitude $115.78$. I selected a fixed Kwinana-area point in southwestern WA to give the case study one consistent processing destination. Of the 40 selected records, 36 lie south of latitude $-30^\circ$, so a southern hub is a reasonable educational reference point while the more distant farms still test longer routes. The coordinates are illustrative; no site-feasibility or optimal-location claim is made.
+The graph uses a model hub labelled \texttt{HUB} at latitude $-32.23$ and longitude $115.78$. I selected a fixed Kwinana-area point in southwestern WA to give the case study one consistent processing destination. Of the 70 selected records, 62 lie south of latitude $-30^\circ$, so a southern hub is a reasonable educational reference point while the more distant farms still test longer routes. The coordinates are illustrative; no site-feasibility or optimal-location claim is made.
 
 \subsection{Transport graph and edge-time model}
 
-The graph has 40 farm vertices plus the hub. The deterministic topology contains 55 undirected edges, stored as 110 adjacency entries. A source-order chain creates the main connected component, extra hub links provide shortcuts, and selected chords create alternate paths and cycles. Farm \texttt{404a0} is deliberately isolated to test unreachable handling. The topology is an educational network, not a WA road map.
+The graph has 70 farm vertices plus the hub. The deterministic topology contains 98 undirected edges, stored as 196 adjacency entries. A source-order chain creates the main connected component, extra hub links provide shortcuts, and selected chords create alternate paths and cycles. Farm \texttt{cz941} is deliberately isolated to test unreachable handling. The topology is an educational network, not a WA road map.
 
 Figure~\ref{fig:farm-network} shows the network and the worked R005 route. The shortest model path is
 \[
@@ -225,7 +234,7 @@ with edge times $291.18+200.78+183.63+199.07=874.66$ minutes.
 \begin{figure}[!htbp]
   \centering
   \reportfigure[0.94\linewidth]{figures/03_farm_network.pdf}
-  \caption{Model transport network with 41 vertices and 55 undirected edges. The highlighted R005 route totals 874.66 minutes; the isolated farm is an intentional test case.}
+  \caption{Model transport network with 71 vertices and 98 undirected edges. The highlighted R005 route totals 874.66 minutes; the isolated farm is an intentional test case.}
   \label{fig:farm-network}
 \end{figure}
 
@@ -256,15 +265,15 @@ The request file contains 12 valid rows, R001--R012, and seven deliberate invali
 
 The graph is a custom weighted undirected adjacency list. Vertices are stored in a linked list, and each graph node owns a linked list of edge objects. NumPy arrays hold working values such as traversal levels, colours, distances and predecessors, but the graph algorithms update these values manually. An edge stores a direct destination-node reference and a positive finite weight. Adding one undirected connection inserts two adjacency entries but increments the undirected edge count once. Duplicate labels, duplicate edges, self-connections, missing endpoints and invalid weights are rejected.
 
-BFS uses the custom FIFO queue. The source starts at level 0; every newly discovered neighbour receives the current level plus one. The returned level is therefore minimum edge count, not minimum weighted transport time. From \texttt{HUB}, BFS reaches 40 locations including the hub, across levels 0--6. The isolated farm is excluded from this component.
+BFS uses the custom FIFO queue. The source starts at level 0; every newly discovered neighbour receives the current level plus one. The returned level is therefore minimum edge count, not minimum weighted transport time. From \texttt{HUB}, BFS reaches 70 locations including the hub, across levels 0--6. The isolated farm is excluded from this component.
 
-DFS uses an explicit linked-list stack and three states: unvisited, active and finished. For an undirected graph, the parent edge is ignored when checking for a cycle. An edge to another active ancestor identifies a cycle. After the source component finishes, DFS scans remaining components, so disconnected vertices and cycles are still handled. The saved run visits all 41 vertices and detects
+DFS uses an explicit linked-list stack and three states: unvisited, active and finished. For an undirected graph, the parent edge is ignored when checking for a cycle. An edge to another active ancestor identifies a cycle. After the source component finishes, DFS scans remaining components, so disconnected vertices and cycles are still handled. The saved run visits all 71 vertices and detects
 \[
-\texttt{a30b2}\rightarrow\texttt{c6748}\rightarrow\texttt{c1c13}\rightarrow\texttt{a30b2}.
+\texttt{3tbon}\rightarrow\texttt{wf85r}\rightarrow\texttt{9ka6e}\rightarrow\texttt{3tbon}.
 \]
 The iterative stack also avoids recursion-depth failure; a 1,100-vertex path regression test passes.
 
-Dijkstra uses positive finite edge weights and a linear scan to choose the unfinished vertex with the smallest current distance. Relaxation updates the distance and predecessor when a shorter route is found. No library shortest-path routine or priority queue is used. This linear-scan implementation runs in $O(V^2+E)$ time. A binary-heap implementation can achieve $O((V+E)\log V)$, but the linear scan is straightforward to trace and sufficient for the 41-vertex test network \cite{clrs2022}.
+Dijkstra uses positive finite edge weights and a linear scan to choose the unfinished vertex with the smallest current distance. Relaxation updates the distance and predecessor when a shorter route is found. No library shortest-path routine or priority queue is used. This linear-scan implementation runs in $O(V^2+E)$ time. A binary-heap implementation can achieve $O((V+E)\log V)$, but the linear scan is straightforward to trace and sufficient for the 71-vertex test network \cite{clrs2022}.
 
 \subsection{Observed graph results}
 
@@ -277,15 +286,15 @@ Dijkstra uses positive finite edge weights and a linear scan to choose the unfin
 \hline
 \textbf{Check} & \textbf{Observed result} \\
 \hline
-Graph size & 41 vertices and 55 undirected weighted edges. \\
+Graph size & 71 vertices and 98 undirected weighted edges. \\
 \hline
-BFS from HUB & 40 reachable locations including HUB; levels 0--6. \\
+BFS from HUB & 70 reachable locations including HUB; levels 0--6. \\
 \hline
-Disconnected location & Farm \texttt{404a0} remains unreachable from HUB. \\
+Disconnected location & Farm \texttt{cz941} remains unreachable from HUB. \\
 \hline
-DFS & All 41 vertices are visited across all components. \\
+DFS & All 71 vertices are visited across all components. \\
 \hline
-Cycle detection & \texttt{a30b2} $\rightarrow$ \texttt{c6748} $\rightarrow$ \texttt{c1c13} $\rightarrow$ \texttt{a30b2}. \\
+Cycle detection & \texttt{3tbon} $\rightarrow$ \texttt{wf85r} $\rightarrow$ \texttt{9ka6e} $\rightarrow$ \texttt{3tbon}. \\
 \hline
 Independent Dijkstra fixture & Path \texttt{A--C--B--D--E} has total cost 7 and beats the more expensive alternatives. \\
 \hline
@@ -307,19 +316,19 @@ Table~\ref{tab:bfs-levels} gives the actual BFS groups so the level output can b
 \hline
 0 & HUB \\
 \hline
-1 & v75pu, cc5fd, 7735f, 7d2c0 \\
+1 & v75pu, cc5fd, 7735f, 7d2c0, 946fc, e61b1, h26h5 \\
 \hline
-2 & h9cp1, qlctx, 8e64d, 85yvj, b9752, 90629, 6jvno, 8bd08, df2e4, 4mw8y \\
+2 & h9cp1, qlctx, 8e64d, 85yvj, b9752, 90629, 6jvno, 8bd08, df2e4, 4mw8y, 404a0, 71a14, kdhdc, 8d586, 6ab14, 643lx, vpr67, fi4hu \\
 \hline
-3 & 58yzc, 735d4, v2jbu, 3d8af, 1cc85, x7jvy, 60e63, 96d4e, 1d900 \\
+3 & 58yzc, 735d4, v2jbu, 3d8af, 1cc85, x7jvy, 60e63, 96d4e, 1d900, c1c13, bcdff, 5b8ef, w76rr, 974d7, 0bfa4, 633eh, uu7xz \\
 \hline
-4 & fzccd, g4q82, c81cd, gslqa, zaz9u, 24tju, ee349, c96c9, 9bc88, yd20s, 37d48, 7c9d7 \\
+4 & fzccd, g4q82, c81cd, gslqa, zaz9u, 24tju, ee349, c96c9, 9bc88, yd20s, 37d48, 7c9d7, c6748, a30b2, 272ee, 65e30, 30enu, f4386, fjdym, 80e05, k942w, ludq6 \\
 \hline
-5 & cd8b9, a30b2 \\
+5 & cd8b9, c6e42, 3tbon \\
 \hline
-6 & c6748, c1c13 \\
+6 & wf85r, 9ka6e \\
 \hline
-Unreachable & 404a0 \\
+Unreachable & cz941 \\
 \hline
 \end{tabularx}
 \end{table}
@@ -353,7 +362,7 @@ Deletion creates a tombstone rather than a FREE slot. Search may stop at FREE be
 
 \subsection{Resize behaviour and collision evidence}
 
-The initial capacity 53 is prime and deliberately allows the 40-record demonstration to trigger growth. Before a new insertion would raise the live load factor above 0.7, the table grows to the next prime at least twice as large and all USED entries are rehashed. The 38th insertion would make $38/53>0.7$, so growth to 107 occurs before that insertion. Table~\ref{tab:hash-load} shows the saved checkpoints.
+The initial capacity 53 is prime and deliberately allows the 70-record demonstration to trigger growth. Before a new insertion would raise the live load factor above 0.7, the table grows to the next prime at least twice as large and all USED entries are rehashed. The 38th insertion would make $38/53>0.7$, so growth to 107 occurs before that insertion. Table~\ref{tab:hash-load} shows the saved checkpoints.
 
 \begin{table}[!htbp]
 \centering
@@ -372,10 +381,16 @@ The initial capacity 53 is prime and deliberately allows the 40-record demonstra
 \hline
 40 & 40 & 107 & 0.373832 \\
 \hline
+50 & 50 & 107 & 0.467290 \\
+\hline
+60 & 60 & 107 & 0.560748 \\
+\hline
+70 & 70 & 107 & 0.654206 \\
+\hline
 \end{tabular}
 \end{table}
 
-The explicit collision case uses FarmIDs \texttt{qlctx} and \texttt{c1c13}. Both initially hash to slot 45 when capacity is 53; \texttt{c1c13} then probes to slot 44. Deleting \texttt{qlctx} leaves a tombstone, so the later search still reaches slot 44. Reinserting \texttt{qlctx} can reuse slot 45. Figure~\ref{fig:hash-behaviour} summarises this behaviour and the resize checkpoints.
+The test driver takes the first colliding pair in the dataset: \texttt{v75pu} and \texttt{272ee}. Both initially hash to slot 0 when capacity is 53; \texttt{272ee} then probes to slot 46. Deleting \texttt{v75pu} leaves a tombstone, so the later search still reaches slot 46. Reinserting \texttt{v75pu} can reuse slot 0. Figure~\ref{fig:hash-behaviour} summarises this behaviour and the resize checkpoints.
 
 \begin{figure}[!htbp]
   \centering
@@ -465,7 +480,7 @@ Quick Sort operates directly on the NumPy record array. It uses a median-of-thre
 
 \subsection{Benchmark design}
 
-The experiment uses 100, 500 and 1,000 model collection records drawn from the 39 reachable farms. Each generated record uses the same scheduler calculation as a live request: FarmID is checked through the hash table and transportation time comes from Dijkstra. Farm selection and model feedstock are pseudorandom; transport times are therefore not unrelated random sort keys. Repeated FarmIDs are allowed because the benchmark represents historical/model events rather than simultaneous pending heap entries. With only 39 reachable farms, repeated $T$ values are common and therefore make stability and duplicate-key handling relevant.
+The experiment uses 100, 500 and 1,000 model collection records drawn from the 69 reachable farms. Each generated record uses the same scheduler calculation as a live request: FarmID is checked through the hash table and transportation time comes from Dijkstra. Farm selection and model feedstock are pseudorandom; transport times are therefore not unrelated random sort keys. Repeated FarmIDs are allowed because the benchmark represents historical/model events rather than simultaneous pending heap entries. With only 69 reachable farms, repeated $T$ values are common and therefore make stability and duplicate-key handling relevant.
 
 For each size, both algorithms receive fresh copies of exactly the same input. Random input is produced by a seeded shuffle. Nearly sorted input starts from a stable sorted baseline; 10\% distinct positions are selected and swapped in disjoint pairs, so exactly 10, 50 and 100 record identities move for sizes 100, 500 and 1,000. Equal-time identities may swap without changing the numerical order. Reversed input is non-increasing by $T$. The base seed is 5008.
 
@@ -484,28 +499,28 @@ Each case has one warm-up and seven measured repetitions, and the algorithm that
 \textbf{Records} & \textbf{Condition} & \textbf{Merge Sort (ms)} & \textbf{Quick Sort (ms)} \\
 \hline
 \endhead
-100 & Random & 0.094185 & 0.055905 \\
+100 & Random & 0.091530 & 0.066577 \\
 \hline
-100 & Nearly sorted & 0.083839 & 0.042786 \\
+100 & Nearly sorted & 0.079732 & 0.038155 \\
 \hline
-100 & Reversed & 0.080720 & 0.044887 \\
+100 & Reversed & 0.075798 & 0.039941 \\
 \hline
-500 & Random & 0.619756 & 0.369286 \\
+500 & Random & 0.720696 & 0.353137 \\
 \hline
-500 & Nearly sorted & 0.605155 & 0.315708 \\
+500 & Nearly sorted & 0.563869 & 0.282399 \\
 \hline
-500 & Reversed & 0.566197 & 0.320053 \\
+500 & Reversed & 0.555017 & 0.282637 \\
 \hline
-1,000 & Random & 1.398643 & 0.819310 \\
+1,000 & Random & 1.351673 & 0.788762 \\
 \hline
-1,000 & Nearly sorted & 1.406673 & 0.704178 \\
+1,000 & Nearly sorted & 1.278720 & 0.634881 \\
 \hline
-1,000 & Reversed & 1.310881 & 0.705720 \\
+1,000 & Reversed & 1.203905 & 0.644828 \\
 \hline
 \end{longtable}
 \normalsize
 
-Figure~\ref{fig:sorting-timings} shows the same measurements. Time increases with input size for both algorithms. In every saved row Quick Sort has the lower mean. Increasing random input from 100 to 1,000 records multiplies the saved Merge Sort mean by about 14.85 and the Quick Sort mean by about 14.66. These three sizes illustrate observed growth; they do not establish an asymptotic bound.
+Figure~\ref{fig:sorting-timings} shows the same measurements. Time increases with input size for both algorithms. In every saved row Quick Sort has the lower mean. Increasing random input from 100 to 1,000 records multiplies the saved Merge Sort mean by about 14.77 and the Quick Sort mean by about 11.85. These three sizes illustrate observed growth; they do not establish an asymptotic bound.
 
 \begin{figure}[!htbp]
   \centering
@@ -514,7 +529,7 @@ Figure~\ref{fig:sorting-timings} shows the same measurements. Time increases wit
   \label{fig:sorting-timings}
 \end{figure}
 
-Input condition also changes the saved means. At 1,000 records, Merge Sort takes 1.398643~ms on random input, 1.406673~ms on nearly sorted input and 1.310881~ms on reversed input. Compared with random input, this is about 0.6\% slower on nearly sorted input and 6.3\% faster on reversed input. Quick Sort takes 0.819310~ms, 0.704178~ms and 0.705720~ms, respectively, making it approximately 14.1\% faster on nearly sorted input and 13.9\% faster on reversed input. These are differences between local measured means, and the ranking can vary with input size and timing noise.
+Input condition also changes the saved means. At 1,000 records, Merge Sort takes 1.351673~ms on random input, 1.278720~ms on nearly sorted input and 1.203905~ms on reversed input. Compared with random input, this is about 5.4\% faster on nearly sorted input and 10.9\% faster on reversed input. Quick Sort takes 0.788762~ms, 0.634881~ms and 0.644828~ms, respectively, making it approximately 19.5\% faster on nearly sorted input and 18.2\% faster on reversed input. These are differences between local measured means, and the ranking can vary with input size and timing noise.
 
 The measurements do not prove asymptotic complexity. Merge Sort keeps its $\Theta(n\log n)$ bound for all three conditions. Median-of-three avoids always choosing an extreme first or last value on simple monotonic input. The saved reversed-input means show no conspicuous slowdown, which is consistent with this design. Partition balance was not measured, so the experiment does not isolate the pivot rule as the cause or establish a runtime class. Adversarial arrangements can still produce quadratic worst-case time.
 
@@ -553,7 +568,7 @@ The full 1,000-record outputs are supplied in \path{sample_output/merge_sorted_1
 \label{sec:integration}
 % ================================================================
 
-The six module, input and integration drivers record 343 passed checks. The benchmark suite additionally completes all 18 algorithm/size/condition combinations. Both 1,000-record sorted exports and the 12-record integrated export are checked for record count and ascending transportation time. A fresh package copy was also launched from another working directory and exercised through every menu option, both sort/export choices, invalid-input recovery and clean exit.
+The six module, input and integration drivers record 459 passed checks. The benchmark suite additionally completes all 18 algorithm/size/condition combinations. Both 1,000-record sorted exports and the 12-record integrated export are checked for record count and ascending transportation time. A fresh package copy was also launched from another working directory and exercised through every menu option, both sort/export choices, invalid-input recovery and clean exit.
 
 Table~\ref{tab:validation-summary} summarises the main coverage. The tests cover normal operations, invalid inputs and boundary cases.
 
@@ -566,9 +581,9 @@ Table~\ref{tab:validation-summary} summarises the main coverage. The tests cover
 \hline
 \textbf{Area} & \textbf{Confirmed behaviour} \\
 \hline
-Graph & 41 vertices/55 edges, BFS levels, all-component DFS, cycle detection, Dijkstra path/time, isolated farm, invalid endpoints/weights and long iterative DFS path. \\
+Graph & 71 vertices/98 edges, BFS levels, all-component DFS, cycle detection, Dijkstra path/time, isolated farm, invalid endpoints/weights and long iterative DFS path. \\
 \hline
-Hash & 40 source farm records, double-hashing collision trace, search/delete/reinsert, tombstones, load checkpoints, resize 53$\rightarrow$107 and validation errors. \\
+Hash & 70 source farm records, double-hashing collision trace, search/delete/reinsert, tombstones, load checkpoints, resize 53$\rightarrow$107 and validation errors. \\
 \hline
 Heap & Calculated $F/T$, 12 insertions, five or more extractions, heap-property traces, FIFO ties, empty/full cases, duplicate/missing/unreachable/zero/deleted-farm handling. \\
 \hline
@@ -594,13 +609,15 @@ Table~\ref{tab:evidence-locations} lists the saved test outputs and supporting f
 \hline
 \textbf{Evidence} & \textbf{Submitted file} \\
 \hline
+Source sample, selection script and selected farms & \path{data_preparation/farm_dataset_sample.csv}; \path{data_preparation/prepare_data.py}; \path{data/dataset.csv} \\
+\hline
+Model transport network and collection requests & \path{data/transport_edges.csv}; \path{data/collection_requests.csv} \\
+\hline
 Graph, BFS, DFS, Dijkstra and graph error cases & \path{sample_output/graph_tests.txt} \\
 \hline
 Hash operations, collision probes, deletion/reinsertion and resizing & \path{sample_output/hash_tests.txt} \\
 \hline
-Heap insertions/extractions and invalid request cases & \path{sample_output/heap_tests.txt} \\
-\hline
-Exact heap states used for the figure & \path{report/figure_data/heap_states.csv} \\
+Heap state after each insertion/extraction and invalid request cases & \path{sample_output/heap_tests.txt} \\
 \hline
 Sorting correctness and input conditions & \path{sample_output/sorting_tests.txt} \\
 \hline
@@ -679,7 +696,7 @@ Quick Sort & Average $\Theta(n\log n)$; worst $\Theta(n^2)$ & In-place swaps and
 
 The hash rehash estimate assumes expected short probe sequences and excludes the additional trial-division search for a prime capacity. A pathological collision pattern can require $O(q^2)$ probing while reinserting $q$ records, giving $O(m+m'+q^2)$ worst-case rehash work plus prime-search cost. Tombstone-heavy workloads can also lengthen searches even when the live load factor is low.
 
-The graph is the main scaling cost in a normal accepted request. Hash lookup is expected constant time and heap insertion is logarithmic, but each request runs Dijkstra with a linear minimum scan. This is acceptable for 41 vertices and keeps the implementation easy to trace. For a much larger network, an indexed vertex map and binary-heap Dijkstra would be stronger choices.
+The graph is the main scaling cost in a normal accepted request. Hash lookup is expected constant time and heap insertion is logarithmic, but each request runs Dijkstra with a linear minimum scan. This is acceptable for 71 vertices and keeps the implementation easy to trace. For a much larger network, an indexed vertex map and binary-heap Dijkstra would be stronger choices.
 
 The hash table has a different trade-off. Farm lookup is expected to use few probes under the stated distribution and occupancy assumptions, but collisions and tombstones can increase probe length. The 0.7 growth threshold controls occupancy, and rehashing removes tombstones when growth occurs. The heap provides efficient priority access, although required full-array tracing adds $O(R)$ output to a successful change and should not be confused with the raw $O(\log R)$ operation.
 
@@ -692,7 +709,7 @@ For sorting, the observed run favours Quick Sort on time, while Merge Sort provi
 
 \subsection{Assumptions and limitations}
 
-The farm dataset is a selected subset of a supplied sample. The implementation retains source links, but it does not independently verify every facility against the current website. The hub is a model point, graph edges are constructed for testing, and the edge-time formula uses fixed assumptions. The calculated transportation times should therefore be read as model weights, not real truck travel times.
+The farm dataset is a selected subset of a supplied sample. Names and coordinates were checked against the live website, but facility status can change after the check date. The hub is a model point, graph edges are constructed for testing, and the edge-time formula uses fixed assumptions. The calculated transportation times should therefore be read as model weights, not real truck travel times.
 
 Feedstock values are also model values. Priority $P=F/T$ captures a simple balance between quantity and transport time, but it ignores truck capacity, collection cost, multi-stop routing, fairness, operating hours, fuel use, emissions and return trips. A real scheduler would need a broader objective.
 
@@ -704,7 +721,7 @@ The algorithm choices also limit scale. Vertex lookup is linear, Dijkstra scans 
 
 The main strength of the design is the integration between modules. A FarmID found in the hash table is the same record used by the scheduler. Dijkstra's $T$ is used directly in $P=F/T$, and that accepted request later becomes a sorting record. The data structures are therefore part of one workflow rather than four unrelated exercises.
 
-Several decisions favour clarity over maximum scale. The linear Dijkstra scan is easy to trace and is adequate at 41 vertices. The fixed heap and CSV storage also keep the system within the assignment scope. Adding a database, live route service or another priority queue would increase implementation size without improving the demonstration of the required structures.
+Several decisions favour clarity over maximum scale. The linear Dijkstra scan is easy to trace and is adequate at 71 vertices. The fixed heap and CSV storage also keep the system within the assignment scope. Adding a database, live route service or another priority queue would increase implementation size without improving the demonstration of the required structures.
 
 For a real collection service, the first improvements should be better inputs and a better transport model. Facility status and feedstock would need current verified sources. Routes should come from a road network, travel time should account for operating conditions, and scheduling should include vehicle capacity and cost. Once those inputs are reliable, faster shortest-path indexing and dynamic reprioritisation would become useful engineering changes.
 
@@ -714,7 +731,7 @@ For a real collection service, the first improvements should be better inputs an
 
 The submitted backend integrates the required graph, hash, heap and sorting structures into one model feedstock-collection workflow. The graph supports BFS, DFS and Dijkstra; the hash table provides double-hashed FarmID lookup with tombstones and resizing; the max heap schedules requests using $P=F/T$; and custom Merge Sort and Quick Sort produce ascending transportation-time reports.
 
-The saved evidence contains 40 farm records, a 41-vertex/55-edge graph, an intentional isolated farm, a detected cycle, 12 accepted requests, seven rejected invalid rows and a hash resize from 53 to 107. The first five heap extractions are R011, R003, R004, R001 and R009. Sorting covers all 18 algorithm/size/condition combinations, with Quick Sort faster in each saved row and Merge Sort retaining stability and predictable $\Theta(n\log n)$ time.
+The saved evidence contains 70 farm records, a 71-vertex/98-edge graph, an intentional isolated farm, a detected cycle, 12 accepted requests, seven rejected invalid rows and a hash resize from 53 to 107. The first five heap extractions are R011, R003, R004, R001 and R009. Sorting covers all 18 algorithm/size/condition combinations, with Quick Sort faster in each saved row and Merge Sort retaining stability and predictable $\Theta(n\log n)$ time.
 
 The system meets its purpose as an educational data-structure backend. Its transport and feedstock values are modelling assumptions, so the results should not be treated as a real WA collection plan. A production version would require verified live data, real road routing, dynamic updates and a scheduling objective that includes vehicle and cost constraints.
 

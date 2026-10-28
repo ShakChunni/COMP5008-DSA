@@ -13,6 +13,7 @@ import numpy as np
 from services.DataLoader import ROOT, buildSystem, loadRequests, columnIndex
 from data_preparation.prepare_data import HUB_LAT, HUB_LNG
 from common.DSALinkedList import DSALinkedList
+from module2_hash.DSAHashTable import DSAHashTable
 
 
 def environmentValue(filename, name):
@@ -144,14 +145,24 @@ def main():
     result += (f"Dataset: **{records.count()} farms**, all WA; graph: **{graph.getVertexCount()} vertices**, "
                f"**{graph.getEdgeCount()} undirected edges**; isolated farm: **{records.peekLast().farm_id}**.\n\n"
                f"Detected cycle: `{cycle}`. BFS reaches {graph.breadthFirstSearch('HUB').count()} locations "
-               "including the hub. DFS visits all 41, including the isolated farm.\n\n")
+               f"including the hub. DFS visits all {graph.getVertexCount()}, including the isolated farm.\n\n")
     result += "## Hash table evidence\n\n"
     result += "| Successful insertions | Live records | Capacity | Load factor |\n|---:|---:|---:|---:|\n"
-    for count in range(10, 41, 10):
-        capacity = 53 if count < 40 else 107
-        result += f"| {count} | {count} | {capacity} | {count / capacity:.6f} |\n"
-    result += ("\nThe 38th insertion would make 38/53 > 0.7, so the table grows from 53 to 107 "
-               "before inserting it. After deletion, 39/107 = 0.364486.\n\n"
+    replay = DSAHashTable(53)
+    resize_at = None
+    with contextlib.redirect_stdout(io.StringIO()):
+        for record in records:
+            size_before = replay.getSize()
+            replay.insert(record)
+            if replay.getSize() != size_before and resize_at is None:
+                resize_at = replay.getCount()
+            if replay.getCount() % 10 == 0:
+                result += (f"| {replay.getCount()} | {replay.getCount()} | {replay.getSize()} | "
+                           f"{replay.loadFactor():.6f} |\n")
+    final_count = replay.getCount()
+    result += (f"\nThe {resize_at}th insertion would make {resize_at}/53 > 0.7, so the table grows "
+               f"from 53 to {replay.getSize()} before inserting it. After deletion, "
+               f"{final_count - 1}/{replay.getSize()} = {(final_count - 1) / replay.getSize():.6f}.\n\n"
                "Explicit collision: `qlctx` and `c1c13` both initially hash to index 45 in capacity 53. "
                "The complete probe sequence and deletion/reinsertion evidence are in "
                "`sample_output/hash_tests.txt`.\n\n")
@@ -182,7 +193,7 @@ def main():
     result += ("\nDiscuss growth within each algorithm/condition and compare algorithms within each row. "
                "Short runs are sensitive to scheduler activity, caches, Python/runtime overhead and noise. "
                "The benchmarks contain repeated transport-time keys because many requests revisit the "
-               "same 39 reachable farms. Median-of-three helps on ordered data but is not a worst-case guarantee. "
+               f"same {graph.getVertexCount() - 2} reachable farms. Median-of-three helps on ordered data but is not a worst-case guarantee. "
                "Do not conclude that reversed data necessarily causes quadratic behavior for this implementation.\n\n")
     result += "## Figure inputs\n\n"
     result += ("- `figure_data/graph_vertices.csv`: exact node IDs/names/coordinates and isolated node.\n"

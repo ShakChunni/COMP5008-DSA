@@ -1,4 +1,4 @@
-=== 40 REAL FARM INSERTIONS WITH PROBING AND RESIZING ===
+=== 70 REAL FARM INSERTIONS WITH PROBING AND RESIZING ===
   probe 0: index 0, FREE
 INSERT v75pu: index=0, count=1, size=53, load=0.0189
   probe 0: index 2, FREE
@@ -138,7 +138,114 @@ INSERT c1c13: index=14, count=39, size=107, load=0.3645
   probe 0: index 76, FREE
 INSERT 404a0: index=76, count=40, size=107, load=0.3738
 After 40 successful insertions: load factor=0.3738 (40/107)
-PASS 40 farm records loaded
+  probe 0: index 50, FREE
+INSERT 946fc: index=50, count=41, size=107, load=0.3832
+  probe 0: index 57, FREE
+INSERT 71a14: index=57, count=42, size=107, load=0.3925
+  probe 0: index 100, FREE
+INSERT bcdff: index=100, count=43, size=107, load=0.4019
+  probe 0: index 29, USED:6jvno
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 83, FREE
+INSERT 272ee: index=83, count=44, size=107, load=0.4112
+  probe 0: index 69, FREE
+INSERT 65e30: index=69, count=45, size=107, load=0.4206
+  probe 0: index 64, FREE
+INSERT fjdym: index=64, count=46, size=107, load=0.4299
+  probe 0: index 49, FREE
+INSERT f4386: index=49, count=47, size=107, load=0.4393
+  probe 0: index 83, USED:272ee
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 99, FREE
+INSERT 974d7: index=99, count=48, size=107, load=0.4486
+  probe 0: index 71, FREE
+INSERT 6ab14: index=71, count=49, size=107, load=0.4579
+  probe 0: index 1, FREE
+INSERT kdhdc: index=1, count=50, size=107, load=0.4673
+After 50 successful insertions: load factor=0.4673 (50/107)
+  probe 0: index 45, FREE
+INSERT e61b1: index=45, count=51, size=107, load=0.4766
+  probe 0: index 95, USED:fzccd
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 94, USED:c96c9
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 93, USED:8bd08
+  collision: occupied by a different FarmID; use next probe
+  probe 3: index 92, FREE
+INSERT 8d586: index=92, count=52, size=107, load=0.4860
+  probe 0: index 39, FREE
+INSERT 5b8ef: index=39, count=53, size=107, load=0.4953
+  probe 0: index 71, USED:6ab14
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 27, FREE
+INSERT w76rr: index=27, count=54, size=107, load=0.5047
+  probe 0: index 18, FREE
+INSERT 30enu: index=18, count=55, size=107, load=0.5140
+  probe 0: index 6, FREE
+INSERT c6e42: index=6, count=56, size=107, load=0.5234
+  probe 0: index 85, FREE
+INSERT 80e05: index=85, count=57, size=107, load=0.5327
+  probe 0: index 80, FREE
+INSERT 633eh: index=80, count=58, size=107, load=0.5421
+  probe 0: index 74, FREE
+INSERT 0bfa4: index=74, count=59, size=107, load=0.5514
+  probe 0: index 37, FREE
+INSERT 643lx: index=37, count=60, size=107, load=0.5607
+After 60 successful insertions: load factor=0.5607 (60/107)
+  probe 0: index 57, USED:71a14
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 48, USED:df2e4
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 39, USED:5b8ef
+  collision: occupied by a different FarmID; use next probe
+  probe 3: index 30, FREE
+INSERT h26h5: index=30, count=61, size=107, load=0.5701
+  probe 0: index 58, USED:58yzc
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 23, FREE
+INSERT vpr67: index=23, count=62, size=107, load=0.5794
+  probe 0: index 24, FREE
+INSERT fi4hu: index=24, count=63, size=107, load=0.5888
+  probe 0: index 49, USED:f4386
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 101, USED:v2jbu
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 46, USED:b9752
+  collision: occupied by a different FarmID; use next probe
+  probe 3: index 98, USED:h9cp1
+  collision: occupied by a different FarmID; use next probe
+  probe 4: index 43, FREE
+INSERT uu7xz: index=43, count=64, size=107, load=0.5981
+  probe 0: index 64, USED:fjdym
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 100, USED:bcdff
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 29, USED:6jvno
+  collision: occupied by a different FarmID; use next probe
+  probe 3: index 65, FREE
+INSERT k942w: index=65, count=65, size=107, load=0.6075
+  probe 0: index 66, FREE
+INSERT ludq6: index=66, count=66, size=107, load=0.6168
+  probe 0: index 5, FREE
+INSERT 3tbon: index=5, count=67, size=107, load=0.6262
+  probe 0: index 77, FREE
+INSERT wf85r: index=77, count=68, size=107, load=0.6355
+  probe 0: index 97, FREE
+INSERT 9ka6e: index=97, count=69, size=107, load=0.6449
+  probe 0: index 50, USED:946fc
+  collision: occupied by a different FarmID; use next probe
+  probe 1: index 45, USED:e61b1
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 40, USED:24tju
+  collision: occupied by a different FarmID; use next probe
+  probe 3: index 35, USED:90629
+  collision: occupied by a different FarmID; use next probe
+  probe 4: index 30, USED:h26h5
+  collision: occupied by a different FarmID; use next probe
+  probe 5: index 25, FREE
+INSERT cz941: index=25, count=70, size=107, load=0.6542
+After 70 successful insertions: load factor=0.6542 (70/107)
+PASS 70 farm records loaded
 PASS resized to prime capacity 107
 PASS complete record retrieved v75pu
 PASS complete record retrieved h9cp1
@@ -180,6 +287,36 @@ PASS complete record retrieved a30b2
 PASS complete record retrieved c6748
 PASS complete record retrieved c1c13
 PASS complete record retrieved 404a0
+PASS complete record retrieved 946fc
+PASS complete record retrieved 71a14
+PASS complete record retrieved bcdff
+PASS complete record retrieved 272ee
+PASS complete record retrieved 65e30
+PASS complete record retrieved fjdym
+PASS complete record retrieved f4386
+PASS complete record retrieved 974d7
+PASS complete record retrieved 6ab14
+PASS complete record retrieved kdhdc
+PASS complete record retrieved e61b1
+PASS complete record retrieved 8d586
+PASS complete record retrieved 5b8ef
+PASS complete record retrieved w76rr
+PASS complete record retrieved 30enu
+PASS complete record retrieved c6e42
+PASS complete record retrieved 80e05
+PASS complete record retrieved 633eh
+PASS complete record retrieved 0bfa4
+PASS complete record retrieved 643lx
+PASS complete record retrieved h26h5
+PASS complete record retrieved vpr67
+PASS complete record retrieved fi4hu
+PASS complete record retrieved uu7xz
+PASS complete record retrieved k942w
+PASS complete record retrieved ludq6
+PASS complete record retrieved 3tbon
+PASS complete record retrieved wf85r
+PASS complete record retrieved 9ka6e
+PASS complete record retrieved cz941
   probe 0: index 10, USED:v75pu
 SEARCH v75pu: found at index 10
 Complete successful search: FarmID=v75pu, Name=Adelong Farm Piggery, Species=Pigs, Lat=-32.751247, Lng=117.291214, Street Num=1, Street=Unnamed Road, Suburb=Commodine, State=WA, Postcode=6311.0, Country=Australia, Status=Open, Map=https://www.farmtransparency.org/map?location=v75pu, Profile=https://www.farmtransparency.org/facilities/v75pu-adelong-farm-piggery
@@ -187,38 +324,44 @@ Complete successful search: FarmID=v75pu, Name=Adelong Farm Piggery, Species=Pig
 PASS missing farm search: 'Farm not found: zzzzz'
 PASS duplicate FarmID: Duplicate FarmID: v75pu
   probe 0: index 10, USED:v75pu
-DELETE v75pu: tombstone at 10, load=0.3645
+DELETE v75pu: tombstone at 10, load=0.6449
 PASS deletion changes count/load
   probe 0: index 10, DELETED
-  probe 1: index 64, FREE
+  probe 1: index 64, USED:fjdym
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 11, FREE
 PASS search after deletion: 'Farm not found: v75pu'
   probe 0: index 10, DELETED
-  probe 1: index 64, FREE
+  probe 1: index 64, USED:fjdym
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 11, FREE
 PASS repeat deletion: 'Cannot delete missing farm: v75pu'
   probe 0: index 8, FREE
 PASS missing deletion: 'Cannot delete missing farm: zzzzz'
   probe 0: index 10, DELETED
-  probe 1: index 64, FREE
-INSERT v75pu: index=10, count=40, size=107, load=0.3738
+  probe 1: index 64, USED:fjdym
+  collision: occupied by a different FarmID; use next probe
+  probe 2: index 11, FREE
+INSERT v75pu: index=10, count=70, size=107, load=0.6542
 PASS reinsertion after deletion
 === EXPLICIT REAL-ID COLLISION AND TOMBSTONE ===
 PASS collision pair found in actual dataset
-Both qlctx and c1c13 hash to 45
-  probe 0: index 45, FREE
-INSERT qlctx: index=45, count=1, size=53, load=0.0189
-  probe 0: index 45, USED:qlctx
+Both v75pu and 272ee hash to 0
+  probe 0: index 0, FREE
+INSERT v75pu: index=0, count=1, size=53, load=0.0189
+  probe 0: index 0, USED:v75pu
   collision: occupied by a different FarmID; use next probe
-  probe 1: index 44, FREE
-INSERT c1c13: index=44, count=2, size=53, load=0.0377
-  probe 0: index 45, USED:qlctx
-DELETE qlctx: tombstone at 45, load=0.0189
-  probe 0: index 45, DELETED
-  probe 1: index 44, USED:c1c13
-SEARCH c1c13: found at index 44
+  probe 1: index 46, FREE
+INSERT 272ee: index=46, count=2, size=53, load=0.0377
+  probe 0: index 0, USED:v75pu
+DELETE v75pu: tombstone at 0, load=0.0189
+  probe 0: index 0, DELETED
+  probe 1: index 46, USED:272ee
+SEARCH 272ee: found at index 46
 PASS search continues beyond tombstone
-  probe 0: index 45, DELETED
-  probe 1: index 37, FREE
-INSERT qlctx: index=45, count=2, size=53, load=0.0377
+  probe 0: index 0, DELETED
+  probe 1: index 26, FREE
+INSERT v75pu: index=0, count=2, size=53, load=0.0377
 PASS tombstone reusable
 === RECORD VALIDATION ===
 PASS invalid FarmID : FarmID must contain ASCII letters/digits only

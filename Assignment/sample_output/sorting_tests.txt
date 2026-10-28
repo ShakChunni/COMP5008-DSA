@@ -24,6 +24,9 @@ After 10 successful insertions: load factor=0.1887 (10/53)
 After 20 successful insertions: load factor=0.3774 (20/53)
 After 30 successful insertions: load factor=0.5660 (30/53)
 After 40 successful insertions: load factor=0.3738 (40/107)
+After 50 successful insertions: load factor=0.4673 (50/107)
+After 60 successful insertions: load factor=0.5607 (60/107)
+After 70 successful insertions: load factor=0.6542 (70/107)
 PASS 100 random mergeSort
 PASS 100 random quickSort
 PASS 100: exactly 10% records displaced

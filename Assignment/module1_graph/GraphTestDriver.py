@@ -30,7 +30,7 @@ def runTests():
     minutes, path = graph.dijkstra(HUB, isolated)
     print(f"Unreachable {isolated}: no valid route (time={minutes}, path={path})")
     check("unreachable destination", math.isinf(minutes) and path.isEmpty())
-    check("BFS excludes isolated farm", graph.breadthFirstSearch(HUB).count() == 40)
+    check("BFS excludes isolated farm", graph.breadthFirstSearch(HUB).count() == graph.getVertexCount() - 1)
     for vertex in graph.vertices():
         for edge in vertex.adjacent:
             reverse_weight = None

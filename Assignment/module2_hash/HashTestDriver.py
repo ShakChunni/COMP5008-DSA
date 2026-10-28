@@ -13,10 +13,11 @@ from tests.TestHelpers import check, expectError
 def runTests():
     records = loadFarmRecords(ROOT / "data/dataset.csv")
     table = DSAHashTable(53)
-    print("=== 40 REAL FARM INSERTIONS WITH PROBING AND RESIZING ===")
+    farm_count = records.count()
+    print(f"=== {farm_count} REAL FARM INSERTIONS WITH PROBING AND RESIZING ===")
     for record in records:
         table.insert(record, trace=True)
-    check("40 farm records loaded", table.getCount() == 40)
+    check(f"{farm_count} farm records loaded", farm_count >= 40 and table.getCount() == farm_count)
     check("resized to prime capacity 107", table.getSize() == 107)
     for record in records:
         check("complete record retrieved " + record.farm_id, table.search(record.farm_id) is record)
@@ -25,7 +26,7 @@ def runTests():
     expectError("duplicate FarmID", ValueError, lambda: table.insert(records.peekFirst(), trace=True))
     before = table.getCount()
     table.delete(records.peekFirst().farm_id, trace=True)
-    check("deletion changes count/load", table.getCount() == before - 1 and table.loadFactor() == 39 / 107)
+    check("deletion changes count/load", table.getCount() == before - 1 and table.loadFactor() == (farm_count - 1) / 107)
     expectError("search after deletion", KeyError, lambda: table.search(records.peekFirst().farm_id, trace=True))
     expectError("repeat deletion", KeyError, lambda: table.delete(records.peekFirst().farm_id, trace=True))
     expectError("missing deletion", KeyError, lambda: table.delete("zzzzz", trace=True))

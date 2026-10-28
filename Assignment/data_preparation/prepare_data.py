@@ -12,6 +12,7 @@ from services.DataLoader import ROOT, HUB, columnIndex, fieldValue
 
 HUB_LAT = -32.23
 HUB_LNG = 115.78
+FARM_COUNT = 70
 
 
 def estimatedMinutes(first_lat, first_lng, second_lat, second_lng):
@@ -38,7 +39,7 @@ def writeThreeFields(writer, first, second, third):
 
 def main():
     source_path = ROOT / "data_preparation/farm_dataset_sample.csv"
-    selected = np.empty(40, dtype=object)
+    selected = np.empty(FARM_COUNT, dtype=object)
     count = 0
     with source_path.open(newline="", encoding="utf-8-sig") as source:
         reader = csv.reader(source)
@@ -66,14 +67,14 @@ def main():
                         and "unconfirmed" not in species_field.lower()
                         and "proposed" not in fieldValue(row, name_index).lower()
                         and accepted_species)
-            if eligible and count < 40:
+            if eligible and count < FARM_COUNT:
                 fields = np.empty(len(row), dtype=object)
                 for index in range(len(row)):
                     fields[index] = row[index]
                 selected[count] = fields
                 count += 1
-    if count < 40:
-        raise ValueError("Source does not contain 40 eligible WA records")
+    if count < FARM_COUNT:
+        raise ValueError(f"Source does not contain {FARM_COUNT} eligible WA records")
     (ROOT / "data").mkdir(exist_ok=True)
     with (ROOT / "data/dataset.csv").open("w", newline="", encoding="utf-8") as target:
         writer = csv.writer(target)
@@ -94,13 +95,13 @@ def main():
             writeThreeFields(writer, first[id_index] if first is not None else HUB, second[id_index], minutes)
 
         connect(-1, 0)
-        for index in range(38):
+        for index in range(FARM_COUNT - 2):
             connect(index, index + 1)
-        for index in range(10, 31, 10):
+        for index in range(10, FARM_COUNT - 1, 10):
             connect(-1, index)
-        for index in range(0, 37, 3):
+        for index in range(0, FARM_COUNT - 3, 3):
             connect(index, index + 2)
-        # selected[39] is deliberately isolated for the required unreachable test.
+        # The last selected farm is deliberately isolated for the required unreachable test.
 
     with (ROOT / "data/collection_requests.csv").open("w", newline="", encoding="utf-8") as target:
         writer = csv.writer(target)
@@ -110,12 +111,15 @@ def main():
         # Intentional invalid rows demonstrate validation; these are not farm data.
         writeThreeFields(writer, "R001", selected[12][id_index], 20)
         writeThreeFields(writer, "DUPFARM", selected[0][id_index], 20)
-        writeThreeFields(writer, "ISOLATED", selected[39][id_index], 20)
+        writeThreeFields(writer, "ISOLATED", selected[FARM_COUNT - 1][id_index], 20)
         writeThreeFields(writer, "MISSING", "zzzzz", 20)
         writeThreeFields(writer, "BADID", "", 20)
         writeThreeFields(writer, "NEGATIVE", selected[13][id_index], -1)
         writeThreeFields(writer, "NOTFINITE", selected[14][id_index], "nan")
-    print("Prepared 40 farms, 41 vertices, 55 edges, 12 valid and 7 invalid requests.")
+    edge_count = (1 + (FARM_COUNT - 2) + len(range(10, FARM_COUNT - 1, 10))
+                  + len(range(0, FARM_COUNT - 3, 3)))
+    print(f"Prepared {FARM_COUNT} farms, {FARM_COUNT + 1} vertices, {edge_count} edges, "
+          "12 valid and 7 invalid requests.")
 
 
 if __name__ == "__main__":

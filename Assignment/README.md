@@ -28,8 +28,8 @@ are found using a manual loop.
 
 ## Using the program
 
-The program loads 40 farm records and a transport graph with 41 locations and
-55 undirected connections. The collection heap starts empty.
+The program loads 70 farm records and a transport graph with 71 locations and
+98 undirected connections. The collection heap starts empty.
 
 Use the menu to display the network, run BFS or DFS, find a shortest route,
 search or update farm records, and add collection requests. Option 13 loads the
@@ -62,10 +62,8 @@ a graph location and transport connections before it can be scheduled.
 | `module4_sorting/` | Merge Sort, Quick Sort, sorting tests and benchmarks |
 | `data/` | Farm, transport-connection and collection-request CSV files |
 | `sample_output/` | Test logs, sorted records and benchmark results |
-| `report/figure_data/` | Saved graph, BFS, priority and heap-state values |
 | `tests/` | Test runner, shared test helpers and input/menu tests |
 | `data_preparation/` | Original Blackboard CSV and script for preparing model inputs |
-| `report/generate_report_evidence.py` | Optional local tool for report results and figure data |
 | `requirements.txt` | Python dependency |
 
 ## Tests and benchmarks
@@ -96,7 +94,7 @@ measured repetitions. Running it again will replace the saved timing results.
 
 ## Data and model
 
-`data/dataset.csv` contains 40 selected WA records from the Blackboard-provided
+`data/dataset.csv` contains 70 selected WA records from the Blackboard-provided
 `data_preparation/farm_dataset_sample.csv`.
 The original farm IDs and source fields are retained.
 
@@ -148,11 +146,3 @@ travel times and feedstock quantities are educational modelling assumptions.
 Do not include `.venv/`, `__pycache__/`, `.DS_Store`, the assignment question PDF,
 or the local `report/` working folder. The final report PDF contains the required
 diagrams; the figure-generation scripts and draft/audit notes are local tools.
-
-Optional local report-evidence refresh, after running the tests:
-
-```sh
-python3 -m report.generate_report_evidence
-```
-
-The test runner does not depend on this optional tool.

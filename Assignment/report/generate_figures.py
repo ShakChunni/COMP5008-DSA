@@ -25,7 +25,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.lines import Line2D
-from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Polygon, Rectangle
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, PathPatch, Polygon, Rectangle
+from matplotlib.path import Path as DrawPath
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "report/figures"
@@ -163,23 +164,123 @@ def moduleFlow():
     return fig
 
 
+def curveControl(start, end, curve):
+    """Quadratic Bezier control point, offset from the midpoint like arc3."""
+    return ((start[0] + end[0]) / 2 + curve * (end[1] - start[1]),
+            (start[1] + end[1]) / 2 - curve * (end[0] - start[0]))
+
+
+def curveHits(positions, first, second, curve):
+    """Count other location boxes that the drawn edge would pass through."""
+    start, end = positions[first], positions[second]
+    control = curveControl(start, end, curve)
+    hits = 0
+    for label, (x, y) in positions.items():
+        if label == first or label == second:
+            continue
+        for step in range(1, 60):
+            t = step / 60
+            px = (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control[0] + t * t * end[0]
+            py = (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control[1] + t * t * end[1]
+            if abs(px - x) < 0.38 and abs(py - y) < 0.22:
+                hits += 1
+                break
+    return hits
+
+
+def clearCurve(positions, first, second, preferred):
+    """Keep the preferred bend unless the edge would cross another location box."""
+    best, best_hits = preferred, curveHits(positions, first, second, preferred)
+    for size in range(1, 11):
+        for sign in (1, -1):
+            if best_hits == 0:
+                return best
+            candidate = preferred + sign * 0.06 * size
+            hits = curveHits(positions, first, second, candidate)
+            if hits < best_hits:
+                best, best_hits = candidate, hits
+    return best
+
+
+def routeHits(positions, points, first, second):
+    """Count other location boxes crossed by a straight-segment route."""
+    hits = 0
+    for label, (x, y) in positions.items():
+        if label == first or label == second:
+            continue
+        crossed = False
+        for index in range(len(points) - 1):
+            (ax, ay), (bx, by) = points[index], points[index + 1]
+            for step in range(61):
+                t = step / 60
+                if abs(ax + t * (bx - ax) - x) < 0.38 and abs(ay + t * (by - ay) - y) < 0.22:
+                    crossed = True
+        hits += crossed
+    return hits
+
+
+def roundedRoute(points, radius=0.22):
+    """Join route points with straight runs and small rounded corners."""
+    vertices, codes = [points[0]], [DrawPath.MOVETO]
+    for index in range(1, len(points) - 1):
+        corner = points[index]
+        entries = []
+        for neighbour in (points[index - 1], points[index + 1]):
+            length = math.dist(corner, neighbour)
+            share = min(radius, length / 2) / length
+            entries.append((corner[0] + share * (neighbour[0] - corner[0]),
+                            corner[1] + share * (neighbour[1] - corner[1])))
+        vertices += [entries[0], corner, entries[1]]
+        codes += [DrawPath.LINETO, DrawPath.CURVE3, DrawPath.CURVE3]
+    vertices.append(points[-1])
+    codes.append(DrawPath.LINETO)
+    return DrawPath(vertices, codes)
+
+
+def gapRoute(positions, first, second, lanes):
+    """Route a long edge through the empty gap beside the destination column.
+
+    Each gap keeps a lane count, so routes sharing a gap are drawn side by side.
+    """
+    start, end = positions[first], positions[second]
+    if start[1] < end[1]:
+        start, end = end, start
+    for gap_x in (end[0] - 0.55, end[0] + 0.55):
+        key = round(gap_x, 2)
+        lane = lanes.get(key, 0)
+        outward = -1 if gap_x < end[0] else 1
+        lane_x = gap_x + outward * 0.14 * lane
+        top_y = 5.62 - 0.12 * lane
+        points = ((start[0], start[1]), (lane_x, top_y), (lane_x, end[1] + 0.525), (end[0], end[1]))
+        if routeHits(positions, points, first, second) == 0:
+            lanes[key] = lane + 1
+            return roundedRoute(points)
+    return None
+
+
 def farmNetwork(vertices, edges, priorities):
-    fig = plt.figure(figsize=(9.2, 5.4))
-    grid = fig.add_gridspec(1, 2, width_ratios=(3.5, 1.35), wspace=0.20)
-    left, right = fig.add_subplot(grid[0, 0]), fig.add_subplot(grid[0, 1])
+    columns = 10
     farms = [row for row in vertices if row["Role"] != "hub"]
-    positions = {"HUB": (3.85, 6.15)}
+    lines = math.ceil(len(farms) / columns)
+    fig = plt.figure(figsize=(10.4, 3.0 + 0.62 * lines))
+    grid = fig.add_gridspec(1, 2, width_ratios=(4.4, 1.25), wspace=0.16)
+    left, right = fig.add_subplot(grid[0, 0]), fig.add_subplot(grid[0, 1])
+    positions = {"HUB": ((columns - 1) * 1.1 / 2, 6.15)}
     for index, row in enumerate(farms):
-        line, column = divmod(index, 8)
+        line, column = divmod(index, columns)
         if line % 2:
-            column = 7 - column
+            column = columns - 1 - column
         positions[row["Label"]] = (column * 1.1, 4.95 - line * 1.05)
     selected = next(row for row in priorities if row["RequestID"] == "R005")
     path = [label.strip() for label in selected["PathToHub"].strip("[]").split(",")]
     route_edges = {frozenset((path[index], path[index + 1])) for index in range(len(path) - 1)}
-    cycle_edges = {frozenset(pair) for pair in (("a30b2", "c6748"), ("c6748", "c1c13"), ("c1c13", "a30b2"))}
+    graph_log = (ROOT / "sample_output/graph_tests.txt").read_text()
+    cycle_text = re.search(r"Detected cycle: \[([^\]]+)\]", graph_log).group(1)
+    cycle = [label.strip() for label in cycle_text.split(",")]
+    cycle_edges = {frozenset((cycle[index], cycle[index + 1])) for index in range(len(cycle) - 1)}
     farm_index = {row["Label"]: index for index, row in enumerate(farms)}
     weights = {}
+    lanes = {}
     for edge in edges:
         first, second = edge["Source"], edge["Destination"]
         pair = frozenset((first, second))
@@ -194,10 +295,15 @@ def farmNetwork(vertices, edges, priorities):
             curve = 0.12 if second == "v75pu" else -0.15
         elif abs(farm_index[first] - farm_index[second]) == 2:
             curve = 0.27
-        patch = FancyArrowPatch(positions[first], positions[second], arrowstyle="-",
-                                shrinkA=14, shrinkB=14, linewidth=width, color=colour,
-                                connectionstyle=f"arc3,rad={curve}", zorder=1)
-        left.add_patch(patch)
+        curve = clearCurve(positions, first, second, curve)
+        shape = None
+        if curveHits(positions, first, second, curve) > 0:
+            shape = gapRoute(positions, first, second, lanes)
+        if shape is None:
+            control = curveControl(positions[first], positions[second], curve)
+            shape = DrawPath((positions[first], control, positions[second]),
+                             (DrawPath.MOVETO, DrawPath.CURVE3, DrawPath.CURVE3))
+        left.add_patch(PathPatch(shape, fill=False, linewidth=width, edgecolor=colour, zorder=1))
     for row in vertices:
         label = row["Label"]
         x, y = positions[label]
@@ -208,7 +314,7 @@ def farmNetwork(vertices, edges, priorities):
     isolated = next(row["Label"] for row in vertices if row["Role"] == "isolated_farm")
     ix, iy = positions[isolated]
     left.annotate("isolated", (ix, iy), xytext=(ix, iy - 0.48), ha="center", fontsize=9, color=PURPLE)
-    left.set(xlim=(-0.65, 8.3), ylim=(-0.40, 6.75))
+    left.set(xlim=(-0.95, (columns - 1) * 1.1 + 0.95), ylim=(4.95 - (lines - 1) * 1.05 - 0.85, 6.75))
     left.set_title(f"(a) Full schematic: {len(vertices)} vertices, {len(edges)} edges", pad=9)
     left.axis("off")
     legend = (Line2D((0,), (0,), color="#AAAAAA", lw=1.2, label="Other connection"),
@@ -237,27 +343,35 @@ def farmNetwork(vertices, edges, priorities):
 
 
 def bfsLevels(vertices, bfs):
-    fig, ax = plt.subplots(figsize=(8.2, 5.2))
-    ax.set(xlim=(0, 10), ylim=(-0.5, 8.35))
-    ax.axis("off")
     groups = {}
     for row in bfs:
         groups.setdefault(int(row["Level"]), []).append(row["Label"])
+    per_line = 9
+    heights = [0.42 + 0.34 * math.ceil(len(groups[level]) / per_line) for level in range(max(groups) + 1)]
+    total_height = sum(heights) + 0.2 * len(heights) + 1.6
+    fig, ax = plt.subplots(figsize=(8.6, 0.62 * total_height + 0.4))
+    ax.set(xlim=(0, 10), ylim=(-0.2, total_height))
+    ax.axis("off")
+    ax.text(5, total_height - 0.3, "BFS from HUB: minimum number of connections", ha="center",
+            fontsize=12, fontweight="bold")
+    top = total_height - 0.75
     for level in range(max(groups) + 1):
-        y = 7.5 - level
         labels = groups[level]
+        height = heights[level]
+        bottom = top - height
         colour = ORANGE if level == 0 else BLUE
-        ax.text(0.6, y, f"Level {level}", ha="left", va="center", fontweight="bold", fontsize=11)
-        ax.add_patch(FancyBboxPatch((1.8, y - 0.37), 7.8, 0.74, boxstyle="round,pad=0.06",
+        ax.text(0.6, bottom + height / 2, f"Level {level}", ha="left", va="center", fontweight="bold", fontsize=11)
+        ax.add_patch(FancyBboxPatch((1.8, bottom), 7.9, height, boxstyle="round,pad=0.04",
                                     facecolor="white", edgecolor=colour, linewidth=0.8))
-        rows = ["   ".join(labels[index:index + 8]) for index in range(0, len(labels), 8)]
-        ax.text(2.02, y, "\n".join(rows), va="center", fontsize=10.2, fontfamily="DejaVu Sans Mono")
+        rows = ["  ".join(labels[index:index + per_line]) for index in range(0, len(labels), per_line)]
+        ax.text(1.98, bottom + height / 2, "\n".join(rows), va="center", fontsize=9.6,
+                fontfamily="DejaVu Sans Mono", linespacing=1.35)
+        top = bottom - 0.2
     isolated = [row["Label"] for row in vertices if row["Label"] not in {item["Label"] for item in bfs}]
-    ax.text(0.6, 0.25, "Unreachable", ha="left", va="center", fontsize=11, color=PURPLE)
-    ax.add_patch(FancyBboxPatch((1.8, -0.08), 7.8, 0.66, boxstyle="round,pad=0.06",
+    ax.text(0.6, top - 0.3, "Unreachable", ha="left", va="center", fontsize=11, color=PURPLE)
+    ax.add_patch(FancyBboxPatch((1.8, top - 0.6), 7.9, 0.6, boxstyle="round,pad=0.04",
                                 facecolor="white", edgecolor=PURPLE, linestyle="--", linewidth=1.0))
-    ax.text(2.02, 0.25, ", ".join(isolated) + "  (isolated in the model)", va="center", fontsize=10.5)
-    ax.text(5, 8.17, "BFS from HUB: minimum number of connections", ha="center", fontsize=12, fontweight="bold")
+    ax.text(1.98, top - 0.3, ", ".join(isolated) + "  (isolated in the model)", va="center", fontsize=10.2)
     fig.tight_layout(pad=0.5)
     return fig
 
@@ -270,8 +384,15 @@ def hashBehaviour():
     start = int(start_text)
     found = re.search(rf"INSERT {second}: index=(\d+), count=2, size=(\d+)", example)
     destination, capacity = map(int, found.groups())
+    main_log = log.split("=== EXPLICIT REAL-ID COLLISION AND TOMBSTONE ===", 1)[0]
+    total = int(re.search(r"=== (\d+) REAL FARM INSERTIONS", main_log).group(1))
+    resize_at = None
+    for match in re.finditer(r"INSERT \w+: index=\d+, count=(\d+), size=(\d+), load=", main_log):
+        if int(match.group(2)) != 53 and resize_at is None:
+            resize_at = int(match.group(1))
+    labelled = list(range(10, total + 1, 10)) + ([total] if total % 10 else [])
     checkpoints = []
-    for count in (10, 20, 30, 37, 38, 40):
+    for count in sorted(set(labelled + [resize_at - 1, resize_at])):
         match = re.search(rf"INSERT \w+: index=\d+, count={count}, size=(\d+), load=", log)
         if not match:
             raise ValueError("Missing required insertion state in hash trace")
@@ -281,38 +402,54 @@ def hashBehaviour():
     grid = fig.add_gridspec(1, 2, width_ratios=(1.15, 1), wspace=0.3)
     left, right = fig.add_subplot(grid[0, 0]), fig.add_subplot(grid[0, 1])
     left.axis("off")
-    left.set(xlim=(0, 4.4), ylim=(-0.85, 3.35))
-    headers = ("Both inserted", "Delete qlctx", "Search c1c13")
+    left.set(xlim=(-0.05, 5.05), ylim=(-0.75, 3.2))
+    headers = ("1. Both inserted", f"2. Delete {first}", f"3. Search {second}")
+    notes = (f"{second} hits slot {start},\nprobes on to {destination}", "slot becomes a\ntombstone",
+             f"search passes the\ntombstone, finds {second}")
+    box_width, box_height = 1.0, 0.52
+    rows = ((start, 1.85), (destination, 0.95))
     for column, header in enumerate(headers):
-        x = 0.6 + column * 1.25
-        left.text(x + 0.48, 2.65, header, ha="center", fontsize=9.5, fontweight="bold")
-        for line, slot in enumerate((start, destination)):
-            y = 1.75 - line * 0.82
-            value = first if slot == start else second
-            colour = BLUE if slot == start else GREEN
+        x = 0.72 + column * 1.48
+        left.text(x + box_width / 2, 2.72, header, ha="center", fontsize=9.5, fontweight="bold")
+        for slot, y in rows:
+            value, colour, fill = (first, BLUE, "white") if slot == start else (second, GREEN, "white")
             if column > 0 and slot == start:
-                value, colour = "DELETED", ORANGE
-            left.add_patch(Rectangle((x, y), 0.98, 0.6, facecolor="white", edgecolor=colour, linewidth=1.0))
-            left.text(x + 0.49, y + 0.3, value, ha="center", va="center", fontsize=9.5, color=colour)
+                value, colour, fill = "DELETED", ORANGE, "#FBEEE4"
+            left.add_patch(FancyBboxPatch((x, y), box_width, box_height, boxstyle="round,pad=0.02",
+                                          facecolor=fill, edgecolor=colour, linewidth=1.1))
+            left.text(x + box_width / 2, y + box_height / 2, value, ha="center", va="center",
+                      fontsize=9.5, color=colour)
             if column == 0:
-                left.text(x - 0.15, y + 0.3, str(slot), va="center", ha="right", fontsize=10)
-    arrow(left, (3.92, 2.05), (3.92, 1.24), colour=GREEN)
-    left.text(2.2, 0.38, f"Probe order: {start} → {destination}; pass the tombstone", ha="center", fontsize=10)
-    left.text(2.2, -0.11, f"Reinsert {first}: reuse tombstone at {start}", ha="center", fontsize=10)
+                left.text(x - 0.12, y + box_height / 2, f"slot {slot}", va="center", ha="right",
+                          fontsize=9.5, color=GREY)
+        if column != 1:
+            # Curved probe arrow outside the boxes: first slot tried, then the next probe.
+            side = x + box_width + 0.06
+            left.add_patch(FancyArrowPatch((side, rows[0][1] + box_height / 2), (side, rows[1][1] + box_height / 2),
+                                           arrowstyle="-|>", mutation_scale=10, color=GREEN, linewidth=1.2,
+                                           connectionstyle="arc3,rad=-0.55"))
+            left.text(side + 0.3, (rows[0][1] + rows[1][1]) / 2 + box_height / 2, "probe 1",
+                      ha="left", va="center", fontsize=8.2, color=GREEN, rotation=90)
+        left.text(x + box_width / 2, 0.42, notes[column], ha="center", va="center", fontsize=8.6,
+                  color=GREY, linespacing=1.25)
+    left.text(2.5, -0.38, f"Reinserting {first} reuses the tombstone at slot {start}.", ha="center", fontsize=9.6)
     left.set_title(f"(a) Selected slots: double hashing, m = {capacity}", pad=12)
     x = [row[0] for row in checkpoints]
     loads = [row[2] for row in checkpoints]
     right.plot(x, loads, color=BLUE, linewidth=1.5, marker="s", markersize=5, markerfacecolor="white")
     right.axhline(0.7, color=GREY, linestyle="--", linewidth=0.9)
     right.text(10.2, 0.715, "Growth threshold 0.7", fontsize=9, color=GREY)
-    right.annotate("53 → 107 slots\nbefore insert 38", xy=(38, 38 / 107), xytext=(24.5, 0.22),
+    new_size = next(size for count, size, _ in checkpoints if count == resize_at)
+    right.annotate(f"53 → {new_size} slots\nbefore insert {resize_at}", xy=(resize_at, resize_at / new_size),
+                   xytext=(resize_at - 13.5, 0.2),
                    fontsize=9.5, arrowprops={"arrowstyle": "->", "color": ORANGE}, color=ORANGE)
     for count, size, load in checkpoints:
-        if count in (10, 20, 30, 40):
-            right.annotate(f"{count}/{size}", (count, load), xytext=(0, 8), textcoords="offset points",
+        if count in labelled:
+            right.annotate(f"{count}/{size}", (count, load), xytext=(0, -14 if count == total else 8),
+                           textcoords="offset points",
                            ha="center", fontsize=8.8)
     right.set(xlabel="Successful insertions", ylabel="Live records / table capacity",
-              ylim=(0, 0.82), xlim=(8, 42), xticks=(10, 20, 30, 40))
+              ylim=(0, 0.82), xlim=(8, total + 4), xticks=labelled)
     right.set_title("(b) Load factor and resizing", pad=12)
     setupChart(right)
     fig.subplots_adjust(left=0.025, right=0.975, top=0.85, bottom=0.18)
@@ -409,7 +546,9 @@ def main():
     priorities = readCSV("report/figure_data/priorities_and_collection_order.csv")
     states = readCSV("report/figure_data/heap_states.csv")
     timings = readCSV("sample_output/benchmark_results.csv")
-    if len(vertices) != 41 or len(edges) != 55 or len(bfs) != 40 or len(priorities) != 12 or len(timings) != 18:
+    environment = json.loads((ROOT / "sample_output/benchmark_environment.json").read_text())
+    if (len(vertices) != environment["vertices"] or len(edges) != environment["edges"]
+            or len(bfs) != environment["vertices"] - 1 or len(priorities) != 12 or len(timings) != 18):
         raise ValueError("Figure inputs differ from the checked assignment dataset; refresh and review evidence")
     figures = (("01_system_uml", systemUML()), ("02_module_data_flow", moduleFlow()),
                ("03_farm_network", farmNetwork(vertices, edges, priorities)),

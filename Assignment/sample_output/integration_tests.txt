@@ -2,6 +2,9 @@ After 10 successful insertions: load factor=0.1887 (10/53)
 After 20 successful insertions: load factor=0.3774 (20/53)
 After 30 successful insertions: load factor=0.5660 (30/53)
 After 40 successful insertions: load factor=0.3738 (40/107)
+After 50 successful insertions: load factor=0.4673 (50/107)
+After 60 successful insertions: load factor=0.5607 (60/107)
+After 70 successful insertions: load factor=0.6542 (70/107)
 PRIORITY R001: 10.00 / 199.07 = 0.050234
 HEAP after insertion: [R001:0.050234]
 PRIORITY R002: 17.00 / 378.26 = 0.044943
@@ -28,7 +31,7 @@ PRIORITY R012: 25.00 / 641.01 = 0.039001
 HEAP after insertion: [R011:0.131243, R003:0.062712, R001:0.050234, R009:0.048736, R004:0.053129, R012:0.039001, R007:0.018887, R008:0.029669, R002:0.044943, R010:0.026760, R005:0.043445, R006:0.017188]
 REJECTED request CSV line 14: Duplicate collection request ID: R001
 REJECTED request CSV line 15: Farm already has a pending collection request: v75pu
-REJECTED request CSV line 16: No valid collection route to the hub for 404a0
+REJECTED request CSV line 16: No valid collection route to the hub for cz941
 REJECTED request CSV line 17: 'Farm not found: zzzzz'
 REJECTED request CSV line 18: FarmID must contain ASCII letters/digits only
 REJECTED request CSV line 19: Feedstock must be positive and finite

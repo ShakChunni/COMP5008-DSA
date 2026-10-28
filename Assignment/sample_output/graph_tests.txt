@@ -2,9 +2,12 @@ After 10 successful insertions: load factor=0.1887 (10/53)
 After 20 successful insertions: load factor=0.3774 (20/53)
 After 30 successful insertions: load factor=0.5660 (30/53)
 After 40 successful insertions: load factor=0.3738 (40/107)
+After 50 successful insertions: load factor=0.4673 (50/107)
+After 60 successful insertions: load factor=0.5607 (60/107)
+After 70 successful insertions: load factor=0.6542 (70/107)
 === REQUIRED DATASET GRAPH ===
-Vertices: 41 Edges: 55
-HUB -> v75pu (199.07 min), cc5fd (137.15 min), 7735f (169.92 min), 7d2c0 (2416.20 min)
+Vertices: 71 Edges: 98
+HUB -> v75pu (199.07 min), cc5fd (137.15 min), 7735f (169.92 min), 7d2c0 (2416.20 min), 946fc (1475.83 min), e61b1 (581.16 min), h26h5 (446.17 min)
 v75pu -> HUB (199.07 min), h9cp1 (179.19 min), qlctx (183.63 min)
 h9cp1 -> v75pu (179.19 min), qlctx (337.14 min)
 qlctx -> h9cp1 (337.14 min), 58yzc (200.78 min), v75pu (183.63 min)
@@ -43,31 +46,64 @@ df2e4 -> 7d2c0 (2610.53 min), 4mw8y (130.47 min)
 7c9d7 -> 37d48 (420.10 min), a30b2 (1.84 min), 1d900 (367.91 min)
 a30b2 -> 7c9d7 (1.84 min), c6748 (1.95 min), c1c13 (1.40 min)
 c6748 -> a30b2 (1.95 min), c1c13 (3.33 min)
-c1c13 -> c6748 (3.33 min), a30b2 (1.40 min)
-404a0 -> (isolated)
+c1c13 -> c6748 (3.33 min), 404a0 (23.52 min), a30b2 (1.40 min)
+404a0 -> c1c13 (23.52 min), 946fc (1481.61 min), 71a14 (147.89 min)
+946fc -> 404a0 (1481.61 min), 71a14 (1368.05 min), HUB (1475.83 min)
+71a14 -> 946fc (1368.05 min), bcdff (149.86 min), 404a0 (147.89 min)
+bcdff -> 71a14 (149.86 min), 272ee (175.18 min), 65e30 (160.50 min)
+272ee -> bcdff (175.18 min), 65e30 (187.53 min)
+65e30 -> 272ee (187.53 min), fjdym (374.47 min), bcdff (160.50 min)
+fjdym -> 65e30 (374.47 min), f4386 (351.34 min), 974d7 (349.94 min)
+f4386 -> fjdym (351.34 min), 974d7 (39.26 min)
+974d7 -> f4386 (39.26 min), 6ab14 (398.98 min), fjdym (349.94 min)
+6ab14 -> 974d7 (398.98 min), kdhdc (286.40 min), e61b1 (1025.15 min)
+kdhdc -> 6ab14 (286.40 min), e61b1 (802.69 min)
+e61b1 -> kdhdc (802.69 min), 8d586 (800.05 min), HUB (581.16 min), 6ab14 (1025.15 min)
+8d586 -> e61b1 (800.05 min), 5b8ef (799.41 min), w76rr (113.40 min)
+5b8ef -> 8d586 (799.41 min), w76rr (686.02 min)
+w76rr -> 5b8ef (686.02 min), 30enu (740.72 min), 8d586 (113.40 min)
+30enu -> w76rr (740.72 min), c6e42 (798.50 min), 80e05 (967.04 min)
+c6e42 -> 30enu (798.50 min), 80e05 (300.20 min)
+80e05 -> c6e42 (300.20 min), 633eh (236.51 min), 30enu (967.04 min)
+633eh -> 80e05 (236.51 min), 0bfa4 (256.11 min), 643lx (247.41 min)
+0bfa4 -> 633eh (256.11 min), 643lx (259.89 min)
+643lx -> 0bfa4 (259.89 min), h26h5 (267.67 min), 633eh (247.41 min)
+h26h5 -> 643lx (267.67 min), vpr67 (117.98 min), HUB (446.17 min), fi4hu (98.40 min)
+vpr67 -> h26h5 (117.98 min), fi4hu (125.65 min)
+fi4hu -> vpr67 (125.65 min), uu7xz (20.84 min), h26h5 (98.40 min)
+uu7xz -> fi4hu (20.84 min), k942w (59.48 min), ludq6 (177.76 min)
+k942w -> uu7xz (59.48 min), ludq6 (188.32 min)
+ludq6 -> k942w (188.32 min), 3tbon (674.00 min), uu7xz (177.76 min)
+3tbon -> ludq6 (674.00 min), wf85r (846.84 min), 9ka6e (19.03 min)
+wf85r -> 3tbon (846.84 min), 9ka6e (837.71 min)
+9ka6e -> wf85r (837.71 min), 3tbon (19.03 min)
+cz941 -> (isolated)
 
 BFS from HUB:
 Level 0: HUB
-Level 1: v75pu, cc5fd, 7735f, 7d2c0
-Level 2: h9cp1, qlctx, 8e64d, 85yvj, b9752, 90629, 6jvno, 8bd08, df2e4, 4mw8y
-Level 3: 58yzc, 735d4, v2jbu, 3d8af, 1cc85, x7jvy, 60e63, 96d4e, 1d900
-Level 4: fzccd, g4q82, c81cd, gslqa, zaz9u, 24tju, ee349, c96c9, 9bc88, yd20s, 37d48, 7c9d7
-Level 5: cd8b9, a30b2
-Level 6: c6748, c1c13
-DFS visit order (all components): [HUB, v75pu, h9cp1, qlctx, 58yzc, fzccd, g4q82, gslqa, c81cd, 735d4, 8e64d, cc5fd, 85yvj, v2jbu, zaz9u, 24tju, 9bc88, c96c9, x7jvy, 6jvno, b9752, 7735f, 90629, 3d8af, 1cc85, ee349, cd8b9, yd20s, 96d4e, 60e63, 8bd08, 7d2c0, df2e4, 4mw8y, 1d900, 37d48, 7c9d7, a30b2, c6748, c1c13, 404a0]
-Cycle exists: True Detected cycle: [a30b2, c6748, c1c13, a30b2]
+Level 1: v75pu, cc5fd, 7735f, 7d2c0, 946fc, e61b1, h26h5
+Level 2: h9cp1, qlctx, 8e64d, 85yvj, b9752, 90629, 6jvno, 8bd08, df2e4, 4mw8y, 404a0, 71a14, kdhdc, 8d586, 6ab14, 643lx, vpr67, fi4hu
+Level 3: 58yzc, 735d4, v2jbu, 3d8af, 1cc85, x7jvy, 60e63, 96d4e, 1d900, c1c13, bcdff, 5b8ef, w76rr, 974d7, 0bfa4, 633eh, uu7xz
+Level 4: fzccd, g4q82, c81cd, gslqa, zaz9u, 24tju, ee349, c96c9, 9bc88, yd20s, 37d48, 7c9d7, c6748, a30b2, 272ee, 65e30, 30enu, f4386, fjdym, 80e05, k942w, ludq6
+Level 5: cd8b9, c6e42, 3tbon
+Level 6: wf85r, 9ka6e
+DFS visit order (all components): [HUB, v75pu, h9cp1, qlctx, 58yzc, fzccd, g4q82, gslqa, c81cd, 735d4, 8e64d, cc5fd, 85yvj, v2jbu, zaz9u, 24tju, 9bc88, c96c9, x7jvy, 6jvno, b9752, 7735f, 90629, 3d8af, 1cc85, ee349, cd8b9, yd20s, 96d4e, 60e63, 8bd08, 7d2c0, df2e4, 4mw8y, 1d900, 37d48, 7c9d7, a30b2, c6748, c1c13, 404a0, 946fc, 71a14, bcdff, 272ee, 65e30, fjdym, f4386, 974d7, 6ab14, kdhdc, e61b1, 8d586, 5b8ef, w76rr, 30enu, c6e42, 80e05, 633eh, 0bfa4, 643lx, h26h5, vpr67, fi4hu, uu7xz, k942w, ludq6, 3tbon, wf85r, 9ka6e, cz941]
+Cycle exists: True Detected cycle: [3tbon, wf85r, 9ka6e, 3tbon]
 PASS required graph size
 PASS dataset graph contains a cycle
 PASS DFS includes every component
 PASS deliberately isolated farm
 Dijkstra farm -> hub: path=[v75pu, HUB], shortest time=199.07 min
-Unreachable 404a0: no valid route (time=inf, path=[])
+Unreachable cz941: no valid route (time=inf, path=[])
 PASS unreachable destination
 PASS BFS excludes isolated farm
 PASS undirected positive edge HUB->v75pu
 PASS undirected positive edge HUB->cc5fd
 PASS undirected positive edge HUB->7735f
 PASS undirected positive edge HUB->7d2c0
+PASS undirected positive edge HUB->946fc
+PASS undirected positive edge HUB->e61b1
+PASS undirected positive edge HUB->h26h5
 PASS undirected positive edge v75pu->HUB
 PASS undirected positive edge v75pu->h9cp1
 PASS undirected positive edge v75pu->qlctx
@@ -173,7 +209,90 @@ PASS undirected positive edge a30b2->c1c13
 PASS undirected positive edge c6748->a30b2
 PASS undirected positive edge c6748->c1c13
 PASS undirected positive edge c1c13->c6748
+PASS undirected positive edge c1c13->404a0
 PASS undirected positive edge c1c13->a30b2
+PASS undirected positive edge 404a0->c1c13
+PASS undirected positive edge 404a0->946fc
+PASS undirected positive edge 404a0->71a14
+PASS undirected positive edge 946fc->404a0
+PASS undirected positive edge 946fc->71a14
+PASS undirected positive edge 946fc->HUB
+PASS undirected positive edge 71a14->946fc
+PASS undirected positive edge 71a14->bcdff
+PASS undirected positive edge 71a14->404a0
+PASS undirected positive edge bcdff->71a14
+PASS undirected positive edge bcdff->272ee
+PASS undirected positive edge bcdff->65e30
+PASS undirected positive edge 272ee->bcdff
+PASS undirected positive edge 272ee->65e30
+PASS undirected positive edge 65e30->272ee
+PASS undirected positive edge 65e30->fjdym
+PASS undirected positive edge 65e30->bcdff
+PASS undirected positive edge fjdym->65e30
+PASS undirected positive edge fjdym->f4386
+PASS undirected positive edge fjdym->974d7
+PASS undirected positive edge f4386->fjdym
+PASS undirected positive edge f4386->974d7
+PASS undirected positive edge 974d7->f4386
+PASS undirected positive edge 974d7->6ab14
+PASS undirected positive edge 974d7->fjdym
+PASS undirected positive edge 6ab14->974d7
+PASS undirected positive edge 6ab14->kdhdc
+PASS undirected positive edge 6ab14->e61b1
+PASS undirected positive edge kdhdc->6ab14
+PASS undirected positive edge kdhdc->e61b1
+PASS undirected positive edge e61b1->kdhdc
+PASS undirected positive edge e61b1->8d586
+PASS undirected positive edge e61b1->HUB
+PASS undirected positive edge e61b1->6ab14
+PASS undirected positive edge 8d586->e61b1
+PASS undirected positive edge 8d586->5b8ef
+PASS undirected positive edge 8d586->w76rr
+PASS undirected positive edge 5b8ef->8d586
+PASS undirected positive edge 5b8ef->w76rr
+PASS undirected positive edge w76rr->5b8ef
+PASS undirected positive edge w76rr->30enu
+PASS undirected positive edge w76rr->8d586
+PASS undirected positive edge 30enu->w76rr
+PASS undirected positive edge 30enu->c6e42
+PASS undirected positive edge 30enu->80e05
+PASS undirected positive edge c6e42->30enu
+PASS undirected positive edge c6e42->80e05
+PASS undirected positive edge 80e05->c6e42
+PASS undirected positive edge 80e05->633eh
+PASS undirected positive edge 80e05->30enu
+PASS undirected positive edge 633eh->80e05
+PASS undirected positive edge 633eh->0bfa4
+PASS undirected positive edge 633eh->643lx
+PASS undirected positive edge 0bfa4->633eh
+PASS undirected positive edge 0bfa4->643lx
+PASS undirected positive edge 643lx->0bfa4
+PASS undirected positive edge 643lx->h26h5
+PASS undirected positive edge 643lx->633eh
+PASS undirected positive edge h26h5->643lx
+PASS undirected positive edge h26h5->vpr67
+PASS undirected positive edge h26h5->HUB
+PASS undirected positive edge h26h5->fi4hu
+PASS undirected positive edge vpr67->h26h5
+PASS undirected positive edge vpr67->fi4hu
+PASS undirected positive edge fi4hu->vpr67
+PASS undirected positive edge fi4hu->uu7xz
+PASS undirected positive edge fi4hu->h26h5
+PASS undirected positive edge uu7xz->fi4hu
+PASS undirected positive edge uu7xz->k942w
+PASS undirected positive edge uu7xz->ludq6
+PASS undirected positive edge k942w->uu7xz
+PASS undirected positive edge k942w->ludq6
+PASS undirected positive edge ludq6->k942w
+PASS undirected positive edge ludq6->3tbon
+PASS undirected positive edge ludq6->uu7xz
+PASS undirected positive edge 3tbon->ludq6
+PASS undirected positive edge 3tbon->wf85r
+PASS undirected positive edge 3tbon->9ka6e
+PASS undirected positive edge wf85r->3tbon
+PASS undirected positive edge wf85r->9ka6e
+PASS undirected positive edge 9ka6e->wf85r
+PASS undirected positive edge 9ka6e->3tbon
 === SMALL INDEPENDENT GRAPH FIXTURE ===
 Known shortest path: [A, C, B, D, E] time: 7.0
 PASS Dijkstra beats direct expensive edges
