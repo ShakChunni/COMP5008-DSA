@@ -24,9 +24,15 @@ def estimatedMinutes(first_lat, first_lng, second_lat, second_lng):
     value = (math.sin(difference_lat / 2) ** 2
              + math.cos(lat1) * math.cos(lat2) * math.sin(difference_lng / 2) ** 2)
     # Clamp rounding error before square roots near antipodal coordinates.
-    value = min(1.0, max(0.0, value))
+    if value < 0.0:
+        value = 0.0
+    elif value > 1.0:
+        value = 1.0
     distance = 6371.0 * 2 * math.atan2(math.sqrt(value), math.sqrt(1 - value))
-    return max(1.0, round(distance * 1.3, 2))
+    minutes = round(distance * 1.3, 2)
+    if minutes < 1.0:
+        minutes = 1.0
+    return minutes
 
 
 def writeThreeFields(writer, first, second, third):

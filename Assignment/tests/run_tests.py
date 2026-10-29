@@ -25,8 +25,10 @@ def integrationTest():
     for _ in range(5):
         scheduler.extract_priority()
     original = np.empty(scheduler.history.count(), dtype=object)
-    for index, request in enumerate(scheduler.history):
+    index = 0
+    for request in scheduler.history:
         original[index] = request
+        index += 1
         check("request links all modules", farms.search(request.farm_id).farm_id == request.farm_id
               and graph.dijkstra(request.farm_id, scheduler.hub)[0] == request.transport_time
               and request.priority == request.feedstock / request.transport_time)

@@ -16,7 +16,8 @@ from tests.TestHelpers import check
 
 def fixture(values):
     records = np.empty(len(values), dtype=object)
-    for index, value in enumerate(values):
+    for index in range(len(values)):
+        value = values[index]
         request = CollectionRequest(f"TEST{index}", "testfarm", 10)
         request.transport_time = value
         records[index] = request

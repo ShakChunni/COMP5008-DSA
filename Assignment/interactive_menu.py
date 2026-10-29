@@ -94,8 +94,10 @@ def main():
                 print(f"Accepted={accepted}, rejected={rejected}")
             elif choice == "14":
                 records = np.empty(scheduler.history.count(), dtype=object)
-                for index, request in enumerate(scheduler.history):
+                index = 0
+                for request in scheduler.history:
                     records[index] = request
+                    index += 1
                 algorithm = input("Sort: 1=Merge Sort, 2=Quick Sort: ").strip()
                 if algorithm == "1":
                     mergeSort(records)

@@ -121,7 +121,9 @@ def runBenchmarks(scheduler=None):
     for size_value in benchmarkSizes():
         size = int(size_value)
         base = makeRecords(scheduler, size, random.Random(SEED + size))
-        for condition_index, condition in enumerate(benchmarkConditions()):
+        conditions = benchmarkConditions()
+        for condition_index in range(len(conditions)):
+            condition = conditions[condition_index]
             inputs = makeCondition(base, condition, random.Random(SEED + size + condition_index + 1))
             totals = np.empty(2, dtype=float)
             totals[0] = 0.0
