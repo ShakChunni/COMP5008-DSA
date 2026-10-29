@@ -24,19 +24,20 @@ def fixture(values):
 
 
 def sameFarmIDs(before, after):
-    if len(before) != len(after):
-        return False
-    for index in range(len(before)):
+    same = len(before) == len(after)
+    index = 0
+    while same and index < len(before):
         if before[index] != after[index]:
-            return False
-    return True
+            same = False
+        index += 1
+    return same
 
 
 def fixtureValues(case_index):
     """The original nine edge cases, stored in fixed-size NumPy arrays."""
     if case_index == 0:
-        return np.empty(0, dtype=int)
-    if case_index == 1:
+        values = np.empty(0, dtype=int)
+    elif case_index == 1:
         values = np.empty(1, dtype=int)
         values[0] = 1
     elif case_index == 2 or case_index == 3:
@@ -152,7 +153,6 @@ def runTests():
     for farm_id in connected:
         if farm_id == extra.farm_id:
             found = True
-            break
     check("benchmark includes farm after it is connected to hub", found)
     print("SORTING TESTS PASSED")
 

@@ -53,11 +53,12 @@ class CollectionScheduler:
 
     def _discardDeletedTop(self):
         # A farm may be deleted after scheduling. Check again before collection.
-        while not self.heap.isEmpty():
+        checking = True
+        while checking and not self.heap.isEmpty():
             request = self.heap.peek()
             try:
                 self.farms.search(request.farm_id)
-                return
+                checking = False
             except KeyError:
                 removed = self.heap.extract_priority()
                 removed.status = "CANCELLED"

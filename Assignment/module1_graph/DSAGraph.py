@@ -39,17 +39,24 @@ class DSAGraph:
     def getVertex(self, label):
         if not isinstance(label, str) or not label.strip():
             raise ValueError("Location label must be a non-empty string")
-        for vertex in self._vertices:
-            if vertex.label == label:
-                return vertex
-        raise KeyError("Location not found: " + label)
+        current_node = self._vertices.head
+        found_vertex = None
+        while current_node is not None and found_vertex is None:
+            if current_node.getValue().label == label:
+                found_vertex = current_node.getValue()
+            else:
+                current_node = current_node.getNext()
+        if found_vertex is None:
+            raise KeyError("Location not found: " + label)
+        return found_vertex
 
     def hasVertex(self, label):
+        exists = True
         try:
             self.getVertex(label)
-            return True
         except KeyError:
-            return False
+            exists = False
+        return exists
 
     def addVertex(self, label, value=None):
         if not isinstance(label, str) or not label.strip():
@@ -155,23 +162,23 @@ class DSAGraph:
                 if edge is None:
                     colours[current.index] = 2
                     stack.pop()
-                    continue
-                neighbor = edge.destination
-                if colours[neighbor.index] == 0:
-                    parents[neighbor.index] = current
-                    colours[neighbor.index] = 1
-                    order.insertLast(neighbor.label)
-                    stack.push(makePair(neighbor, iter(neighbor.adjacent)))
-                elif (colours[neighbor.index] == 1
-                      and neighbor is not parents[current.index]
-                      and cycle.isEmpty()):
-                    # Reconstruct the ancestor-to-current path and closing edge.
-                    cursor = current
-                    cycle.insertFirst(cursor.label)
-                    while cursor is not neighbor:
-                        cursor = parents[cursor.index]
+                else:
+                    neighbor = edge.destination
+                    if colours[neighbor.index] == 0:
+                        parents[neighbor.index] = current
+                        colours[neighbor.index] = 1
+                        order.insertLast(neighbor.label)
+                        stack.push(makePair(neighbor, iter(neighbor.adjacent)))
+                    elif (colours[neighbor.index] == 1
+                          and neighbor is not parents[current.index]
+                          and cycle.isEmpty()):
+                        # Reconstruct the ancestor-to-current path and closing edge.
+                        cursor = current
                         cycle.insertFirst(cursor.label)
-                    cycle.insertLast(neighbor.label)
+                        while cursor is not neighbor:
+                            cursor = parents[cursor.index]
+                            cycle.insertFirst(cursor.label)
+                        cycle.insertLast(neighbor.label)
 
         visit(start)
         for vertex in self._vertices:
@@ -199,7 +206,8 @@ class DSAGraph:
         distances[start.index] = 0.0
         overflow_seen = False
 
-        for _ in range(self._count):
+        searching = True
+        while searching:
             current = None
             for vertex in self._vertices:
                 if (not finished[vertex.index]
@@ -208,22 +216,22 @@ class DSAGraph:
                              or distances[vertex.index] < distances[current.index])):
                     current = vertex
             if current is None:
-                break
-            finished[current.index] = True
-            if current is target:
-                break
-            for edge in current.adjacent:
-                neighbor = edge.destination
-                if finished[neighbor.index]:
-                    continue
-                candidate = float(distances[current.index]) + edge.weight
-                if not math.isfinite(candidate):
-                    # An overflowing alternative cannot improve a finite route.
-                    overflow_seen = True
-                    continue
-                if candidate < distances[neighbor.index]:
-                    distances[neighbor.index] = candidate
-                    previous[neighbor.index] = current
+                searching = False
+            else:
+                finished[current.index] = True
+                if current is target:
+                    searching = False
+                else:
+                    for edge in current.adjacent:
+                        neighbor = edge.destination
+                        if not finished[neighbor.index]:
+                            candidate = float(distances[current.index]) + edge.weight
+                            if not math.isfinite(candidate):
+                                # An overflowing alternative cannot improve a finite route.
+                                overflow_seen = True
+                            elif candidate < distances[neighbor.index]:
+                                distances[neighbor.index] = candidate
+                                previous[neighbor.index] = current
 
         path = DSALinkedList()
         if not math.isfinite(distances[target.index]) and overflow_seen:

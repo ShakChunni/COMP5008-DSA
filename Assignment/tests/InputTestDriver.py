@@ -39,7 +39,6 @@ def runTests():
         for index in range(len(headers)):
             if headers[index] == "Lat":
                 row[index] = "not-a-number"
-                break
         with path.open("w", newline="") as target:
             writer = csv.writer(target)
             writer.writerow(headers)
@@ -87,13 +86,12 @@ def runTests():
             reader = csv.reader(source)
             time_column = columnIndex(next(reader, None), "TransportTime")
             for row in reader:
-                if len(row) == 0:
-                    continue
-                current_time = float(fieldValue(row, time_column))
-                if current_time < previous_time:
-                    ascending = False
-                previous_time = current_time
-                saved_count += 1
+                if len(row) > 0:
+                    current_time = float(fieldValue(row, time_column))
+                    if current_time < previous_time:
+                        ascending = False
+                    previous_time = current_time
+                    saved_count += 1
         check("menu exports complete sorted accepted history", saved_count == 13 and ascending)
 
         # A CSV parser failure can happen before normal per-row validation.

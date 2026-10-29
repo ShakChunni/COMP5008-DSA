@@ -21,7 +21,11 @@ class DSAGraphNode:
         self.adjacent = DSALinkedList()
 
     def hasEdge(self, other):
-        for edge in self.adjacent:
-            if edge.destination is other:
-                return True
-        return False
+        current_node = self.adjacent.head
+        found = False
+        while current_node is not None and not found:
+            if current_node.getValue().destination is other:
+                found = True
+            else:
+                current_node = current_node.getNext()
+        return found

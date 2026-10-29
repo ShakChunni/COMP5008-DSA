@@ -37,12 +37,11 @@ def reachableFarmIDs(farms, graph, hub):
     count = 0
     for farm in farms.records():
         # A farm may be added to the lookup table before its graph location.
-        if not graph.hasVertex(farm.farm_id):
-            continue
-        minutes, _ = graph.dijkstra(farm.farm_id, hub)
-        if minutes != float("inf") and minutes > 0:
-            identifiers[count] = farm.farm_id
-            count += 1
+        if graph.hasVertex(farm.farm_id):
+            minutes, _ = graph.dijkstra(farm.farm_id, hub)
+            if minutes != float("inf") and minutes > 0:
+                identifiers[count] = farm.farm_id
+                count += 1
     return identifiers[:count]
 
 
@@ -101,16 +100,15 @@ def makeCondition(base, condition, generator):
 
 def sameRecords(before, after):
     """Check identity preservation independently of the sorting implementations."""
-    if len(before) != len(after):
-        return False
+    same = len(before) == len(after)
     for original in before:
         matches = 0
         for candidate in after:
             if candidate is original:
                 matches += 1
         if matches != 1:
-            return False
-    return True
+            same = False
+    return same
 
 
 def runBenchmarks(scheduler=None):

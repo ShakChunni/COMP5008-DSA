@@ -41,14 +41,14 @@ def inputFarm():
 
 
 def main():
+    running = True
     try:
         _, farms, graph, scheduler = buildSystem()
+        print(f"Loaded {farms.getCount()} farms, {graph.getVertexCount()} locations, "
+              f"{graph.getEdgeCount()} undirected edges. Hub={HUB}")
     except (OSError, ValueError, KeyError, csv.Error) as error:
         print("Cannot load system:", error)
-        return
-    print(f"Loaded {farms.getCount()} farms, {graph.getVertexCount()} locations, "
-          f"{graph.getEdgeCount()} undirected edges. Hub={HUB}")
-    running = True
+        running = False
     while running:
         try:
             menu()

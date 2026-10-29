@@ -16,23 +16,22 @@ def mergeSort(records):
         temporary[index] = None
 
     def recurse(left, right):
-        if left >= right:
-            return
-        middle = (left + right) // 2
-        recurse(left, middle)
-        recurse(middle + 1, right)
-        first = left
-        second = middle + 1
-        for target in range(left, right + 1):
-            if (first <= middle and
-                    (second > right or records[first].transport_time <= records[second].transport_time)):
-                temporary[target] = records[first]
-                first += 1
-            else:
-                temporary[target] = records[second]
-                second += 1
-        for index in range(left, right + 1):
-            records[index] = temporary[index]
+        if left < right:
+            middle = (left + right) // 2
+            recurse(left, middle)
+            recurse(middle + 1, right)
+            first = left
+            second = middle + 1
+            for target in range(left, right + 1):
+                if (first <= middle and
+                        (second > right or records[first].transport_time <= records[second].transport_time)):
+                    temporary[target] = records[first]
+                    first += 1
+                else:
+                    temporary[target] = records[second]
+                    second += 1
+            for index in range(left, right + 1):
+                records[index] = temporary[index]
 
     recurse(0, len(records) - 1)
     return records
@@ -47,11 +46,18 @@ def quickSort(records):
     def median(first, middle, last):
         if first < middle:
             if middle < last:
-                return middle
-            return last if first < last else first
-        if first < last:
-            return first
-        return last if middle < last else middle
+                result = middle
+            elif first < last:
+                result = last
+            else:
+                result = first
+        elif first < last:
+            result = first
+        elif middle < last:
+            result = last
+        else:
+            result = middle
+        return result
 
     def partition(left, right):
         pivot = median(records[left].transport_time,
@@ -59,7 +65,8 @@ def quickSort(records):
                        records[right].transport_time)
         first = left - 1
         second = right + 1
-        while True:
+        crossed = False
+        while not crossed:
             first += 1
             while records[first].transport_time < pivot:
                 first += 1
@@ -67,10 +74,12 @@ def quickSort(records):
             while records[second].transport_time > pivot:
                 second -= 1
             if first >= second:
-                return second
-            temporary = records[first]
-            records[first] = records[second]
-            records[second] = temporary
+                crossed = True
+            else:
+                temporary = records[first]
+                records[first] = records[second]
+                records[second] = temporary
+        return second
 
     def recurse(left, right):
         while left < right:
@@ -87,7 +96,8 @@ def quickSort(records):
 
 
 def isSorted(records):
+    ordered = True
     for index in range(1, len(records)):
         if records[index - 1].transport_time > records[index].transport_time:
-            return False
-    return True
+            ordered = False
+    return ordered

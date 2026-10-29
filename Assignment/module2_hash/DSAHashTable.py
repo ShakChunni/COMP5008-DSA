@@ -29,7 +29,8 @@ class DSAHashTable:
 
     def _nextPrime(self, number):
         candidate = number
-        while True:
+        found = False
+        while not found:
             prime = candidate >= 2
             divisor = 2
             while divisor * divisor <= candidate and prime:
@@ -37,8 +38,10 @@ class DSAHashTable:
                     prime = False
                 divisor += 1
             if prime:
-                return candidate
-            candidate += 1
+                found = True
+            else:
+                candidate += 1
+        return candidate
 
     def _hashModulo(self, key, modulus):
         result = 0
@@ -57,7 +60,10 @@ class DSAHashTable:
         start = self.hash(key)
         step = self._step(key)
         tombstone = -1
-        for attempt in range(self._size):
+        result = -1
+        searching = True
+        attempt = 0
+        while searching and attempt < self._size:
             index = (start + attempt * step) % self._size
             entry = self._table[index]
             if trace:
@@ -70,14 +76,20 @@ class DSAHashTable:
                 if entry.state == DSAHashEntry.USED and entry.key != key:
                     print("  collision: occupied by a different FarmID; use next probe")
             if entry.state == DSAHashEntry.FREE:
-                if inserting:
-                    return tombstone if tombstone != -1 else index
-                return -1
-            if entry.state == DSAHashEntry.USED and entry.key == key:
-                return index
-            if entry.state == DSAHashEntry.DELETED and tombstone == -1:
+                if inserting and tombstone != -1:
+                    result = tombstone
+                elif inserting:
+                    result = index
+                searching = False
+            elif entry.state == DSAHashEntry.USED and entry.key == key:
+                result = index
+                searching = False
+            elif entry.state == DSAHashEntry.DELETED and tombstone == -1:
                 tombstone = index
-        return tombstone if inserting else -1
+            attempt += 1
+        if searching and inserting:
+            result = tombstone
+        return result
 
     def insert(self, record, trace=False):
         if not isinstance(record, FarmRecord):

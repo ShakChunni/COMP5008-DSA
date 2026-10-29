@@ -17,21 +17,25 @@ HUB = "HUB"
 
 
 def columnIndex(headers, name, required=True):
+    found_index = -1
     if headers is not None:
-        for index in range(len(headers)):
+        index = 0
+        while index < len(headers) and found_index == -1:
             if headers[index] == name:
-                return index
-    if required:
+                found_index = index
+            index += 1
+    if found_index == -1 and required:
         raise ValueError("CSV is missing required column: " + name)
-    return -1
+    return found_index
 
 
 def fieldValue(row, index):
-    if index < 0:
-        return ""
-    if index >= len(row):
-        raise ValueError("CSV row has missing columns")
-    return row[index]
+    value = ""
+    if index >= 0:
+        if index >= len(row):
+            raise ValueError("CSV row has missing columns")
+        value = row[index]
+    return value
 
 
 def loadFarmRecords(filename):
@@ -58,18 +62,17 @@ def loadFarmRecords(filename):
         for index in range(len(names)):
             indices[index] = columnIndex(headers, names[index], index < 11)
         for row in reader:
-            if len(row) == 0:
-                continue
-            try:
-                values = np.empty(14, dtype=object)
-                for index in range(len(names)):
-                    values[index] = fieldValue(row, indices[index])
-                record = FarmRecord(values[0], values[1], values[2], values[3], values[4],
-                                    values[5], values[6], values[7], values[8], values[9],
-                                    values[10], values[11], values[12], values[13])
-            except (ValueError, TypeError) as error:
-                raise ValueError(f"Farm CSV line {reader.line_num}: {error}") from error
-            records.insertLast(record)
+            if len(row) > 0:
+                try:
+                    values = np.empty(14, dtype=object)
+                    for index in range(len(names)):
+                        values[index] = fieldValue(row, indices[index])
+                    record = FarmRecord(values[0], values[1], values[2], values[3], values[4],
+                                        values[5], values[6], values[7], values[8], values[9],
+                                        values[10], values[11], values[12], values[13])
+                except (ValueError, TypeError) as error:
+                    raise ValueError(f"Farm CSV line {reader.line_num}: {error}") from error
+                records.insertLast(record)
     return records
 
 
@@ -85,13 +88,12 @@ def loadGraph(records, edge_filename):
         destination_index = columnIndex(headers, "Destination")
         time_index = columnIndex(headers, "TransportTime")
         for row in reader:
-            if len(row) == 0:
-                continue
-            try:
-                graph.addEdge(fieldValue(row, source_index), fieldValue(row, destination_index),
-                              fieldValue(row, time_index))
-            except (ValueError, TypeError, KeyError) as error:
-                raise ValueError(f"Edge CSV line {reader.line_num}: {error}") from error
+            if len(row) > 0:
+                try:
+                    graph.addEdge(fieldValue(row, source_index), fieldValue(row, destination_index),
+                                  fieldValue(row, time_index))
+                except (ValueError, TypeError, KeyError) as error:
+                    raise ValueError(f"Edge CSV line {reader.line_num}: {error}") from error
     return graph
 
 
@@ -120,15 +122,14 @@ def loadRequests(scheduler, filename):
         farm_index = columnIndex(headers, "FarmID")
         feedstock_index = columnIndex(headers, "EstimatedFeedstock")
         for row in reader:
-            if len(row) == 0:
-                continue
-            try:
-                scheduler.insert(fieldValue(row, request_index), fieldValue(row, farm_index),
-                                 fieldValue(row, feedstock_index))
-                accepted += 1
-            except (ValueError, KeyError, TypeError) as error:
-                print(f"REJECTED request CSV line {reader.line_num}: {error}")
-                rejected += 1
+            if len(row) > 0:
+                try:
+                    scheduler.insert(fieldValue(row, request_index), fieldValue(row, farm_index),
+                                     fieldValue(row, feedstock_index))
+                    accepted += 1
+                except (ValueError, KeyError, TypeError) as error:
+                    print(f"REJECTED request CSV line {reader.line_num}: {error}")
+                    rejected += 1
     counts = np.empty(2, dtype=object)
     counts[0] = accepted
     counts[1] = rejected

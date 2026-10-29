@@ -38,12 +38,10 @@ def runTests():
     first = second = None
     for candidate in records:
         for other in records:
-            if candidate is not other and collision_table.hash(candidate.farm_id) == collision_table.hash(other.farm_id):
+            if (first is None and candidate is not other
+                    and collision_table.hash(candidate.farm_id) == collision_table.hash(other.farm_id)):
                 first = candidate
                 second = other
-                break
-        if first is not None:
-            break
     check("collision pair found in actual dataset", first is not None)
     print(f"Both {first.farm_id} and {second.farm_id} hash to {collision_table.hash(first.farm_id)}")
     collision_table.insert(first, trace=True)

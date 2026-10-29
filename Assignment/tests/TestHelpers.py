@@ -4,12 +4,14 @@
 # Purpose: Provide simple pass checks and expected-error checks for test drivers.
 
 def expectError(label, exception_type, operation):
+    raised = False
     try:
         operation()
     except exception_type as error:
         print(f"PASS {label}: {error}")
-        return
-    raise AssertionError("Expected error was not raised: " + label)
+        raised = True
+    if not raised:
+        raise AssertionError("Expected error was not raised: " + label)
 
 
 def check(label, condition):

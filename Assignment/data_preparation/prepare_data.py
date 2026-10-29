@@ -53,34 +53,31 @@ def main():
         lat_index = columnIndex(fieldnames, "Lat")
         lng_index = columnIndex(fieldnames, "Lng")
         for row in reader:
-            if len(row) == 0:
-                continue
-            species_field = fieldValue(row, species_index)
-            # Walk the Species cell character by character; names are separated by ", ".
-            accepted_species = False
-            species = ""
-            for character in species_field + ",":
-                if character == ",":
-                    if (species == "Cows/cattle" or species == "Pigs"
-                            or species == "Sheep" or species == "Goats"):
-                        accepted_species = True
-                    species = ""
-                elif character == " " and species == "":
-                    continue
-                else:
-                    species += character
-            eligible = (fieldValue(row, state_index) == "WA"
-                        and fieldValue(row, status_index) == "Open"
-                        and "unconfirmed" not in fieldValue(row, category_index).lower()
-                        and "unconfirmed" not in species_field.lower()
-                        and "proposed" not in fieldValue(row, name_index).lower()
-                        and accepted_species)
-            if eligible and count < FARM_COUNT:
-                fields = np.empty(len(row), dtype=object)
-                for index in range(len(row)):
-                    fields[index] = row[index]
-                selected[count] = fields
-                count += 1
+            if len(row) > 0:
+                species_field = fieldValue(row, species_index)
+                # Walk the Species cell character by character; names are separated by ", ".
+                accepted_species = False
+                species = ""
+                for character in species_field + ",":
+                    if character == ",":
+                        if (species == "Cows/cattle" or species == "Pigs"
+                                or species == "Sheep" or species == "Goats"):
+                            accepted_species = True
+                        species = ""
+                    elif character != " " or species != "":
+                        species += character
+                eligible = (fieldValue(row, state_index) == "WA"
+                            and fieldValue(row, status_index) == "Open"
+                            and "unconfirmed" not in fieldValue(row, category_index).lower()
+                            and "unconfirmed" not in species_field.lower()
+                            and "proposed" not in fieldValue(row, name_index).lower()
+                            and accepted_species)
+                if eligible and count < FARM_COUNT:
+                    fields = np.empty(len(row), dtype=object)
+                    for index in range(len(row)):
+                        fields[index] = row[index]
+                    selected[count] = fields
+                    count += 1
     if count < FARM_COUNT:
         raise ValueError(f"Source does not contain {FARM_COUNT} eligible WA records")
     (ROOT / "data").mkdir(exist_ok=True)

@@ -50,14 +50,16 @@ class DSAHeap:
         self._sequence += 1
         index = self._count
         self._count += 1
-        while index > 0:
+        moving = True
+        while index > 0 and moving:
             parent = (index - 1) // 2
-            if not self._higher(self._heap[index], self._heap[parent]):
-                break
-            temporary = self._heap[index]
-            self._heap[index] = self._heap[parent]
-            self._heap[parent] = temporary
-            index = parent
+            if self._higher(self._heap[index], self._heap[parent]):
+                temporary = self._heap[index]
+                self._heap[index] = self._heap[parent]
+                self._heap[parent] = temporary
+                index = parent
+            else:
+                moving = False
         print("HEAP after insertion:", self.arrayString())
 
     def peek(self):
@@ -73,17 +75,19 @@ class DSAHeap:
         self._heap[0] = self._heap[self._count]
         self._heap[self._count] = None
         index = 0
-        while index * 2 + 1 < self._count:
+        moving = True
+        while index * 2 + 1 < self._count and moving:
             child = index * 2 + 1
             right = child + 1
             if right < self._count and self._higher(self._heap[right], self._heap[child]):
                 child = right
-            if not self._higher(self._heap[child], self._heap[index]):
-                break
-            temporary = self._heap[index]
-            self._heap[index] = self._heap[child]
-            self._heap[child] = temporary
-            index = child
+            if self._higher(self._heap[child], self._heap[index]):
+                temporary = self._heap[index]
+                self._heap[index] = self._heap[child]
+                self._heap[child] = temporary
+                index = child
+            else:
+                moving = False
         print("HEAP after extraction:", self.arrayString())
         return result
 
@@ -99,7 +103,8 @@ class DSAHeap:
         return "[" + ", ".join(parts) + "]"
 
     def validateHeap(self):
+        valid = True
         for index in range(1, self._count):
             if self._higher(self._heap[index], self._heap[(index - 1) // 2]):
-                return False
-        return True
+                valid = False
+        return valid
