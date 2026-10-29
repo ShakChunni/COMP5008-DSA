@@ -8,7 +8,7 @@
 import csv
 import math
 import numpy as np
-from services.DataLoader import ROOT, HUB, columnIndex, fieldValue
+from services.DataLoader import ROOT, HUB, columnIndex, fieldValue, containsText
 
 HUB_LAT = -32.23
 HUB_LNG = 115.78
@@ -74,9 +74,9 @@ def main():
                         species += character
                 eligible = (fieldValue(row, state_index) == "WA"
                             and fieldValue(row, status_index) == "Open"
-                            and "unconfirmed" not in fieldValue(row, category_index).lower()
-                            and "unconfirmed" not in species_field.lower()
-                            and "proposed" not in fieldValue(row, name_index).lower()
+                            and not containsText(fieldValue(row, category_index).lower(), "unconfirmed")
+                            and not containsText(species_field.lower(), "unconfirmed")
+                            and not containsText(fieldValue(row, name_index).lower(), "proposed")
                             and accepted_species)
                 if eligible and count < FARM_COUNT:
                     fields = np.empty(len(row), dtype=object)

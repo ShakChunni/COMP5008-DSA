@@ -38,6 +38,22 @@ def fieldValue(row, index):
     return value
 
 
+def containsText(text, word):
+    found = False
+    start = 0
+    while start + len(word) <= len(text) and not found:
+        position = 0
+        matching = True
+        while position < len(word) and matching:
+            if text[start + position] != word[position]:
+                matching = False
+            position += 1
+        if matching:
+            found = True
+        start += 1
+    return found
+
+
 def loadFarmRecords(filename):
     records = DSALinkedList()
     names = np.empty(14, dtype=object)

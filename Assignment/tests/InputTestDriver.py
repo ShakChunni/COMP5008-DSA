@@ -12,7 +12,7 @@ import sys
 import tempfile
 import numpy as np
 from pathlib import Path
-from services.DataLoader import ROOT, buildSystem, loadFarmRecords, loadGraph, loadRequests, columnIndex, fieldValue
+from services.DataLoader import ROOT, buildSystem, loadFarmRecords, loadGraph, loadRequests, columnIndex, fieldValue, containsText
 from tests.TestHelpers import check, expectError
 
 
@@ -74,10 +74,10 @@ def runTests():
                                  capture_output=True, timeout=20)
         check("all menu options work from an isolated extracted package",
               process.returncode == 0 and not process.stderr
-              and "Error:" not in process.stdout and "1000 reversed" in process.stdout
-              and "Undirected connection added." in process.stdout
-              and "COLLECT: NEWREQUEST" in process.stdout
-              and "Accepted=12, rejected=7" in process.stdout)
+              and not containsText(process.stdout, "Error:") and containsText(process.stdout, "1000 reversed")
+              and containsText(process.stdout, "Undirected connection added.")
+              and containsText(process.stdout, "COLLECT: NEWREQUEST")
+              and containsText(process.stdout, "Accepted=12, rejected=7"))
         exported = package / "sample_output/collection_records_sorted.csv"
         with exported.open(newline="", encoding="utf-8") as source:
             saved_count = 0
@@ -103,8 +103,8 @@ def runTests():
                                  capture_output=True, timeout=20)
         check("CSV parser errors are handled and menu continues",
               process.returncode == 0 and not process.stderr
-              and "Error: field larger than field limit" in process.stdout
-              and "Exiting..." in process.stdout)
+              and containsText(process.stdout, "Error: field larger than field limit")
+              and containsText(process.stdout, "Exiting..."))
 
     # Run from a different working directory to verify file path handling.
     command[1] = str(ROOT / "main.py")
@@ -112,13 +112,13 @@ def runTests():
                              input="invalid\n5\nzzzzz\n10\n11\n0\n", text=True,
                              cwd=tempfile.gettempdir(), capture_output=True, timeout=20)
     check("menu rejects input and continues", process.returncode == 0
-          and "Invalid menu option" in process.stdout and "Farm not found" in process.stdout
-          and "Heap is empty" in process.stdout and "Exiting..." in process.stdout
-          and "Traceback" not in process.stderr)
+          and containsText(process.stdout, "Invalid menu option") and containsText(process.stdout, "Farm not found")
+          and containsText(process.stdout, "Heap is empty") and containsText(process.stdout, "Exiting...")
+          and not containsText(process.stderr, "Traceback"))
     process = subprocess.run(command, input="", text=True,
                              cwd=tempfile.gettempdir(), capture_output=True, timeout=20)
-    check("menu EOF cleanly exits", process.returncode == 0 and "Exiting..." in process.stdout
-          and "Traceback" not in process.stderr)
+    check("menu EOF cleanly exits", process.returncode == 0 and containsText(process.stdout, "Exiting...")
+          and not containsText(process.stderr, "Traceback"))
     print("INPUT AND MENU TESTS PASSED")
 
 
