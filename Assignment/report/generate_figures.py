@@ -152,7 +152,9 @@ def moduleFlow():
     arrow(ax, (2.33, 3.38), (2.92, 3.38), colour=BLUE)
     arrow(ax, (5.63, 5.03), (6.7, 3.98), colour=GREEN)
     arrow(ax, (5.63, 3.38), (6.02, 3.38), colour=BLUE)
-    arrow(ax, (2.33, 1.63), (6.02, 3.0), colour=PURPLE)
+    ax.plot((2.33, 5.82, 5.82), (1.63, 1.63, 3.08), color=PURPLE, linewidth=1.1,
+            solid_joinstyle="miter")
+    arrow(ax, (5.81, 3.08), (6.02, 3.08), colour=PURPLE)
     arrow(ax, (8.83, 3.38), (9.37, 3.38), colour=ORANGE)
     arrow(ax, (7.43, 2.77), (7.43, 1.68), colour=PURPLE)
     arrow(ax, (8.83, 1.08), (9.37, 1.08), colour=BLUE)
@@ -402,14 +404,14 @@ def hashBehaviour():
     grid = fig.add_gridspec(1, 2, width_ratios=(1.15, 1), wspace=0.3)
     left, right = fig.add_subplot(grid[0, 0]), fig.add_subplot(grid[0, 1])
     left.axis("off")
-    left.set(xlim=(-0.05, 5.05), ylim=(-0.75, 3.2))
+    left.set(xlim=(-0.05, 5.45), ylim=(-0.75, 3.2))
     headers = ("1. Both inserted", f"2. Delete {first}", f"3. Search {second}")
     notes = (f"{second} hits slot {start},\nprobes on to {destination}", "slot becomes a\ntombstone",
              f"search passes the\ntombstone, finds {second}")
     box_width, box_height = 1.0, 0.52
     rows = ((start, 1.85), (destination, 0.95))
     for column, header in enumerate(headers):
-        x = 0.72 + column * 1.48
+        x = 0.72 + column * 1.62
         left.text(x + box_width / 2, 2.72, header, ha="center", fontsize=9.5, fontweight="bold")
         for slot, y in rows:
             value, colour, fill = (first, BLUE, "white") if slot == start else (second, GREEN, "white")
@@ -432,7 +434,7 @@ def hashBehaviour():
                       ha="left", va="center", fontsize=8.2, color=GREEN, rotation=90)
         left.text(x + box_width / 2, 0.42, notes[column], ha="center", va="center", fontsize=8.6,
                   color=GREY, linespacing=1.25)
-    left.text(2.5, -0.38, f"Reinserting {first} reuses the tombstone at slot {start}.", ha="center", fontsize=9.6)
+    left.text(2.72, -0.38, f"Reinserting {first} reuses the tombstone at slot {start}.", ha="center", fontsize=9.6)
     left.set_title(f"(a) Selected slots: double hashing, m = {capacity}", pad=12)
     x = [row[0] for row in checkpoints]
     loads = [row[2] for row in checkpoints]
@@ -445,9 +447,11 @@ def hashBehaviour():
                    fontsize=9.5, arrowprops={"arrowstyle": "->", "color": ORANGE}, color=ORANGE)
     for count, size, load in checkpoints:
         if count in labelled:
-            right.annotate(f"{count}/{size}", (count, load), xytext=(0, -14 if count == total else 8),
+            # Upper-left of a rising line is clear; first and post-resize points go lower-right.
+            below = count == labelled[0] or count == resize_at + 2
+            right.annotate(f"{count}/{size}", (count, load), xytext=(6, -13) if below else (-6, 6),
                            textcoords="offset points",
-                           ha="center", fontsize=8.8)
+                           ha="left" if below else "right", fontsize=8.8)
     right.set(xlabel="Successful insertions", ylabel="Live records / table capacity",
               ylim=(0, 0.82), xlim=(8, total + 4), xticks=labelled)
     right.set_title("(b) Load factor and resizing", pad=12)

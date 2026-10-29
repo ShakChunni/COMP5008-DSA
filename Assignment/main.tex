@@ -702,8 +702,6 @@ Sorted accepted-request history & \path{sample_output/collection_records_sorted.
 \end{tabularx}
 \end{table}
 
-Independent review also compared random graph shortest paths with an oracle, hash operations with a reference model, heap order and FIFO ties with expected sequences, and both sorts on adversarial arrays. These temporary review tools are not part of the submitted core implementation; reproducible regression cases remain in the submitted drivers.
-
 % ================================================================
 \section{Reflection and Design Trade-Offs}
 % ================================================================
@@ -729,6 +727,13 @@ Accepted requests keep the route, $T$ and $P$ from their acceptance time. Later 
 
 The algorithm choices also limit scale. Vertex lookup is linear, Dijkstra scans all vertices to select the next minimum, tombstones may slow a deletion-heavy hash workload, and Quick Sort still has a quadratic worst case. The sorting measurements are short local timings with seven repetitions and no saved standard deviation or confidence interval, so only the measured means are reported.
 
+\section{Declaration of Generative AI Use}
+\label{sec:ai-declaration}
+% ================================================================
+
+I declare that Generative AI tools were used only for permitted learning support and concept clarification. No AI-generated code or AI-generated report text was submitted as part of this assessment.
+
+I used Gemini 3.8 Flash as conversational study aids. I asked it about the assignment requirements and used the discussion to clarify my understanding, mainly the theory behind mapping farm records and transport links to graph vertices and weighted edges, along with a few other concepts. I did not use the tool to generate code or any of the report text. I wrote and checked the submitted work myself.
 % ================================================================
 \section*{Conclusion}
 \phantomsection
