@@ -20,6 +20,8 @@ class DSAHashTable:
         self._count = 0
         self._insertions = 0
         self._threshold = 0.7
+        self._minimum_size = self._size
+        self._lower_threshold = 0.2
 
     def _createArray(self, size):
         entries = np.empty(size, dtype=object)
@@ -135,6 +137,11 @@ class DSAHashTable:
         self._count -= 1
         if trace:
             print(f"DELETE {farm_id}: tombstone at {index}, load={self.loadFactor():.4f}")
+        if self._size > self._minimum_size and self.loadFactor() < self._lower_threshold:
+            smaller_size = self._size // 2
+            if smaller_size < self._minimum_size:
+                smaller_size = self._minimum_size
+            self._resize(smaller_size, trace)
 
     def _resize(self, requested_size, trace):
         old_table = self._table

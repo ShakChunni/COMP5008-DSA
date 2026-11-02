@@ -33,7 +33,7 @@ class FarmRecord:
             raise ValueError("Latitude must be finite and between -90 and 90")
         if not math.isfinite(self.longitude) or not -180 <= self.longitude <= 180:
             raise ValueError("Longitude must be finite and between -180 and 180")
-        # Empty source address/species fields remain empty; never invent values.
+        # Empty source address/species fields remain empty
         self.species = species
         self.street_num = street_num
         self.street = street

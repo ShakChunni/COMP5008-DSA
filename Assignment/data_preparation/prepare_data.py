@@ -22,7 +22,7 @@ def estimatedMinutes(first_lat, first_lng, second_lat, second_lng):
     difference_lat = lat2 - lat1
     difference_lng = math.radians(float(second_lng) - float(first_lng))
     value = (math.sin(difference_lat / 2) ** 2
-             + math.cos(lat1) * math.cos(lat2) * math.sin(difference_lng / 2) ** 2)
+             + math.cos(lat1) * math.cos(lat2) * math.sin(difference_lng / 2) ** 2) # Haversine formula
     # Clamp rounding error before square roots near antipodal coordinates.
     if value < 0.0:
         value = 0.0

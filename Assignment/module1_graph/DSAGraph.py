@@ -150,8 +150,6 @@ class DSAGraph:
         cycle = DSALinkedList()
 
         def visit(root):
-            # Store the neighbor iterator with each vertex so we can resume it.
-            # This has the same traversal order as recursive DFS without its limit.
             stack = DSAStack()
             colours[root.index] = 1
             order.insertLast(root.label)
