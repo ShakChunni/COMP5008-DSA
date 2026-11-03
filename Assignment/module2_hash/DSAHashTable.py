@@ -103,7 +103,7 @@ class DSAHashTable:
             raise ValueError("Duplicate FarmID: " + key)
         if (self._count + 1) / self._size > self._threshold: #resize if load factor exceeds threshold
             self._resize(self._size * 2, trace)
-
+        #find inext for insertion
         index = self._findIndex(key, inserting=True, trace=trace)
         if index == -1:
             raise RuntimeError("No insertion position available")
