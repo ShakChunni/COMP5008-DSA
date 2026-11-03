@@ -153,10 +153,10 @@ class DSAGraph:
             stack = DSAStack()
             colours[root.index] = 1
             order.insertLast(root.label)
-            stack.push(makePair(root, iter(root.adjacent)))  # the place, plus a pointer to its roads
+            stack.push(makePair(root, iter(root.adjacent)))  # the place, plus a pointer to its next edge
             while not stack.isEmpty():
                 current, neighbors = stack.top()
-                edge = next(neighbors, None)  # next road from where it paused, None if no roads left
+                edge = next(neighbors, None)  # next road from where it paused, None if no edgees left
                 if edge is None:
                     colours[current.index] = 2
                     stack.pop()

@@ -2,7 +2,7 @@
   "seed": 5008,
   "repetitions": 7,
   "python": "3.14.7",
-  "numpy": "2.5.4",
+  "numpy": "2.5.1",
   "platform": "macOS-27.2-arm64-arm-64bit-Mach-O",
   "processor": "arm",
   "timer": "time.perf_counter_ns",
