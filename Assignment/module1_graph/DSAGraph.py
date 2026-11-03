@@ -105,7 +105,7 @@ class DSAGraph:
         start = self.getVertex(source)
         levels = np.empty(self._count, dtype=int)
         for index in range(self._count):
-            levels[index] = -1
+            levels[index] = -1 #none visited yet
         levels[start.index] = 0
         queue = DSAQueue()
         queue.enqueue(start)
@@ -153,10 +153,10 @@ class DSAGraph:
             stack = DSAStack()
             colours[root.index] = 1
             order.insertLast(root.label)
-            stack.push(makePair(root, iter(root.adjacent)))
+            stack.push(makePair(root, iter(root.adjacent)))  # the place, plus a pointer to its roads
             while not stack.isEmpty():
                 current, neighbors = stack.top()
-                edge = next(neighbors, None)
+                edge = next(neighbors, None)  # next road from where it paused, None if no roads left
                 if edge is None:
                     colours[current.index] = 2
                     stack.pop()
@@ -166,7 +166,7 @@ class DSAGraph:
                         parents[neighbor.index] = current
                         colours[neighbor.index] = 1
                         order.insertLast(neighbor.label)
-                        stack.push(makePair(neighbor, iter(neighbor.adjacent)))
+                        stack.push(makePair(neighbor, iter(neighbor.adjacent)))  # go deeper, with its own pointer
                     elif (colours[neighbor.index] == 1
                           and neighbor is not parents[current.index]
                           and cycle.isEmpty()):

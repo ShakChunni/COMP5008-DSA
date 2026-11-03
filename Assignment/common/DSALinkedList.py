@@ -143,11 +143,11 @@ class DSALinkedList:
             current_node = current_node.getNext()
         return total
 
-    def __iter__(self):
-        current_node = self.head
-        while current_node is not None:
-            yield current_node.getValue()
-            current_node = current_node.getNext()
+    def __iter__(self):  # runs when you call iter(list)
+        current_node = self.head  # start at the first item
+        while current_node is not None:  # until the list ends
+            yield current_node.getValue()  # give one item, pause here
+            current_node = current_node.getNext()  # next call: resume here, move on
 
     def __str__(self):
         result = "["
