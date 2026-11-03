@@ -117,7 +117,8 @@ def buildSystem(trace=False):
     records = loadFarmRecords(ROOT / "data/dataset.csv")
     farms = DSAHashTable(53)
     for record in records:
-        farms.insert(record, trace=trace)
+        farms.insert(record, trace=trace) #hashtable insertion
+
     graph = loadGraph(records, ROOT / "data/transport_edges.csv")
     scheduler = CollectionScheduler(farms, graph, HUB)
     system = np.empty(4, dtype=object)

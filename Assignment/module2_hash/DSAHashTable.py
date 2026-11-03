@@ -68,7 +68,7 @@ class DSAHashTable:
         while searching and attempt < self._size:
             index = (start + attempt * step) % self._size
             entry = self._table[index]
-            if trace:
+            if trace: #showing details printing
                 state = "FREE"
                 if entry.state == DSAHashEntry.USED:
                     state = "USED:" + entry.key
@@ -77,6 +77,8 @@ class DSAHashTable:
                 print(f"  probe {attempt}: index {index}, {state}")
                 if entry.state == DSAHashEntry.USED and entry.key != key:
                     print("  collision: occupied by a different FarmID; use next probe")
+
+
             if entry.state == DSAHashEntry.FREE:
                 if inserting and tombstone != -1:
                     result = tombstone
@@ -99,11 +101,13 @@ class DSAHashTable:
         key = validateFarmID(record.farm_id)
         if self._findIndex(key) != -1:
             raise ValueError("Duplicate FarmID: " + key)
-        if (self._count + 1) / self._size > self._threshold:
+        if (self._count + 1) / self._size > self._threshold: #resize if load factor exceeds threshold
             self._resize(self._size * 2, trace)
+
         index = self._findIndex(key, inserting=True, trace=trace)
         if index == -1:
             raise RuntimeError("No insertion position available")
+        
         entry = self._table[index]
         entry.key = key
         entry.value = record
@@ -137,6 +141,7 @@ class DSAHashTable:
         self._count -= 1
         if trace:
             print(f"DELETE {farm_id}: tombstone at {index}, load={self.loadFactor():.4f}")
+            
         if self._size > self._minimum_size and self.loadFactor() < self._lower_threshold:
             smaller_size = self._size // 2
             if smaller_size < self._minimum_size:

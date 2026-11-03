@@ -43,12 +43,13 @@ class CollectionScheduler:
         for pending in self.heap.entries():
             if pending.farm_id == farm_id:
                 raise ValueError("Farm already has a pending collection request: " + farm_id)
+        
         request = self.calculateRequest(request_id, farm_id, feedstock)
         print(f"PRIORITY {request.request_id}: {request.feedstock:.2f} / "
               f"{request.transport_time:.2f} = {request.priority:.6f}")
         self.heap.insert(request)
         request.status = "PENDING"
-        self.history.insertLast(request)
+        self.history.insertLast(request) #used for sorting
         return request
 
     def _discardDeletedTop(self):

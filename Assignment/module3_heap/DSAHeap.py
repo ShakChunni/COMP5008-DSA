@@ -46,13 +46,15 @@ class DSAHeap:
             raise ValueError("Request needs a non-empty request ID")
         if self._count == len(self._heap):
             raise ValueError("Heap is full")
-        self._heap[self._count] = DSAHeapEntry(priority, request, self._sequence)
+        
+        #heapify insertion
+        self._heap[self._count] = DSAHeapEntry(priority, request, self._sequence) #inserting at the end
         self._sequence += 1
         index = self._count
         self._count += 1
         moving = True
         while index > 0 and moving:
-            parent = (index - 1) // 2
+            parent = (index - 1) // 2 
             if self._higher(self._heap[index], self._heap[parent]):
                 temporary = self._heap[index]
                 self._heap[index] = self._heap[parent]

@@ -10,7 +10,6 @@ import numpy as np
 
 
 def mergeSort(records):
-    """Stable, top-down Merge Sort by transport time; modify the array in place."""
     temporary = np.empty(len(records), dtype=object)
     for index in range(len(records)):
         temporary[index] = None
@@ -18,8 +17,8 @@ def mergeSort(records):
     def recurse(left, right):
         if left < right:
             middle = (left + right) // 2
-            recurse(left, middle)
-            recurse(middle + 1, right)
+            recurse(left, middle) #left side
+            recurse(middle + 1, right) #right side
             first = left
             second = middle + 1
             for target in range(left, right + 1):
@@ -38,8 +37,7 @@ def mergeSort(records):
 
 
 def quickSort(records):
-    """Median-of-three pivot, Hoare partition; equal keys progress on both sides.
-
+    """Median-of-three pivot, 
     Recurse on the smaller partition and loop over the larger one to bound the
     recursion stack by O(log n), even when partitions are unbalanced.
     """

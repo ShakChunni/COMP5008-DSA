@@ -106,7 +106,7 @@ def main():
             writeThreeFields(writer, first[id_index] if first is not None else HUB, second[id_index], minutes)
 
         connect(-1, 0)
-        for index in range(FARM_COUNT - 2):
+        for index in range(FARM_COUNT - 2): #no last farm
             connect(index, index + 1)
         for index in range(10, FARM_COUNT - 1, 10):
             connect(-1, index)
